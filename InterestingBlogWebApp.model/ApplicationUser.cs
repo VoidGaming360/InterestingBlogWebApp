@@ -1,6 +1,6 @@
 ﻿namespace InterestingBlogWebApp.Models
 {
-    public class AppUser
+    public class ApplicationUser
     {
     }
 }
