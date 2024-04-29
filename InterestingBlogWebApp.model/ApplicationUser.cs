@@ -13,6 +13,8 @@
         public string PictureUri { get; set; } = string.Empty;
 
         public List<Blogs> Blogs { get; set; } = [];
+
+    }
 }
 
 namespace InterestingBlogWebApp.Models
