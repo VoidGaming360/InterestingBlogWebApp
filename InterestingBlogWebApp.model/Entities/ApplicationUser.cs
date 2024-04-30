@@ -1,4 +1,4 @@
-﻿namespace InterestingBlogWebApp.Models
+﻿namespace InterestingBlogWebApp.Domain.Entities
 {
     public class ApplicationUser
     {
@@ -17,7 +17,7 @@
     }
 }
 
-namespace InterestingBlogWebApp.Models
+namespace InterestingBlogWebApp.Domain.Entities
 {
     public enum Gender
     {

@@ -1,6 +1,4 @@
-﻿using InterestingBlogWebApp.Models;
-
-namespace InterestingBlogWebApp.model
+﻿namespace InterestingBlogWebApp.Domain.Entities
 {
     public class Reaction
     {

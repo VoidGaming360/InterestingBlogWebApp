@@ -1,4 +1,4 @@
-﻿namespace InterestingBlogWebApp.Models
+﻿namespace InterestingBlogWebApp.Domain.Entities
 {
     public class Comment
     {

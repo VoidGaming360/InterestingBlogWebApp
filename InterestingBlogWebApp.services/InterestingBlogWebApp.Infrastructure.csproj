@@ -11,4 +11,10 @@
     <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.4.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Dependency Injection\" />
+    <Folder Include="Migrations\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
 </Project>

@@ -11,4 +11,8 @@
     <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.4.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Shared\" />
+  </ItemGroup>
+
 </Project>
