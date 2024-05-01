@@ -1,4 +1,4 @@
-namespace InterestingBlogWebApp
+namespace InterestingBlogWebApp.API
 {
     public class WeatherForecast
     {

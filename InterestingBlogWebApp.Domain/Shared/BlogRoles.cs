@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNet.SignalR;
-
-namespace InterestingBlogWebApp.utilities
+﻿namespace Entities.Shared
 {
     public static class BlogRoles
     {
