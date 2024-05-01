@@ -9,7 +9,6 @@
   <ItemGroup>
     <Folder Include="Dependency Injection\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +23,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\InterestingBlogWebApp.Application\InterestingBlogWebApp.Application.csproj" />
   </ItemGroup>
 
 </Project>
