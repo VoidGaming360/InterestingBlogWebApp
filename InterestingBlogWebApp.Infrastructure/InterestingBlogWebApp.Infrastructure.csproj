@@ -7,12 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="cloudscribe.Web.Pagination" Version="6.0.0" />
-    <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.4.3" />
+    <Folder Include="Dependency Injection\" />
+    <Folder Include="Migrations\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Shared\" />
+    <PackageReference Include="cloudscribe.Web.Pagination" Version="6.0.0" />
   </ItemGroup>
 
 </Project>
