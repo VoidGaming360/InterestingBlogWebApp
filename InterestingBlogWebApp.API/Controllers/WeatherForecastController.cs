@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using InterestingBlogWebApp.Domain.Entities;
 
 namespace InterestingBlogWebApp.API.Controllers
 {
