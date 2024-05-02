@@ -9,7 +9,7 @@
         public int? BlogsId { get; set; }
         public Blogs? Blogs { get; set; }
 
-        public int UserId { get; set; }
-        public ApplicationUser? User { get; set; }
+        public string? ApplicationUserId { get; set; }
+        public ApplicationUser? ApplicationUser { get; set; }
     }
 }

@@ -1,8 +1,9 @@
-﻿namespace InterestingBlogWebApp.Domain.Entities
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace InterestingBlogWebApp.Domain.Entities
 {
-    public class ApplicationUser
+    public class ApplicationUser : IdentityUser
     {
-        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public Gender Gender { get; set; }
         public string Nationality { get; set; } = string.Empty;
@@ -12,7 +13,11 @@
 
         public string PictureUri { get; set; } = string.Empty;
 
+
+        //relation mapping
         public List<Blogs> Blogs { get; set; } = [];
+        public List<Comment> Comments { get; set; } = [];
+        public List<Reaction> Reactions { get; set; } = [];
 
     }
 }
