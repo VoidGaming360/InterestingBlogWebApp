@@ -1,15 +1,23 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using InterestingBlogWebApp.Domain.Entities;
 
 namespace InterestingBlogWebApp.Infrastructure.Persistence
 {
     public class ApplicationDbContext : IdentityDbContext
     {
-        public ApplicationDbContext(DbContextOptions options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
+
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options) =>
-        options.UseSqlite("DataSource = identityDb; Cache=Shared");
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<Blogs> Blog {  get; set; }
+        public DbSet<Comment>   Comments { get; set; }
+        public DbSet<Reaction> Reactions { get; set; }
+
+
+        
     }
 }

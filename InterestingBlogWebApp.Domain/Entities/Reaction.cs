@@ -5,8 +5,8 @@
         public int Id { get; set; }
         public string Type { get; set; } = string.Empty;
 
-        public int UserId { get; set; }
-        public ApplicationUser? User { get; set; } //navigation property
+        public string? ApplicationUserId { get; set; }
+        public ApplicationUser? ApplicationUser { get; set; } //navigation property
 
         public int? BlogId { get; set; }
         public Blogs? Blogs { get; set; } //navigation property
