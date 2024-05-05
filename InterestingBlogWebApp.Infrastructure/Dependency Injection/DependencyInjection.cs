@@ -18,7 +18,7 @@ public static class DependencyInjection
         // Register application services
         services.AddScoped<IDbInitializer, DbInitializer>();
         services.AddTransient<IUnitOfWork, UnitOfWork>();
-        services.AddTransient<IBlog, Blog>();
+        services.AddTransient<IBlog, BlogService>();
 
         // Register Identity services
         services.AddScoped<UserManager<ApplicationUser>>();
