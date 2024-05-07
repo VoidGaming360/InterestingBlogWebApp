@@ -11,8 +11,9 @@ namespace InterestingBlogWebApp.Domain.Entities
 
         //relation mapping
         public List<Blogs> Blogs { get; set; } = [];
+        public List<BlogReaction> BlogReactions { get; set; } = [];
         public List<Comment> Comments { get; set; } = [];
-        public List<Reaction> Reactions { get; set; } = [];
+        public List<CommentReaction> CommentReactions { get; set; } = [];
 
     }
 }
