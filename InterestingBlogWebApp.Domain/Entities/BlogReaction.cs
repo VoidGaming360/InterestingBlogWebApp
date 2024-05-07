@@ -1,7 +1,8 @@
 ﻿namespace InterestingBlogWebApp.Domain.Entities
 {
-    public class Comment
+    public class BlogReaction
     {
+
         public int Id { get; set; }
         public string Content { get; set; } = string.Empty;
         public DateTime CreatedOn { get; set; } = DateTime.Now;
