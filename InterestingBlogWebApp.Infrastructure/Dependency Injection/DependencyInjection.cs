@@ -29,7 +29,10 @@ public static class DependencyInjection
             .AddDefaultTokenProviders()
             .AddApiEndpoints();
 
-        services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+        services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme).AddCookie(options =>
+        {
+            options.LoginPath = "/Identity/Account/Login";
+        });
         services.AddAuthorizationBuilder();
 
         // Configure the database context
