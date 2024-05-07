@@ -7,13 +7,7 @@
         public string Description { get; set; } = string.Empty;
         public string ImageURI { get; set; } = string.Empty;
 
-
         public List<Comment> Comments { get; set; } = [];
-
-
-        public int Upvotes { get; set; }
-        public int Downvotes { get; set; }
-
 
         public string? ApplicationUserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }

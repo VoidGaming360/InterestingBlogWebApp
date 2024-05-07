@@ -1,5 +1,6 @@
 using InterestingBlogWebApp.Application.Interfaces;
 using InterestingBlogWebApp.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+app.UseAuthentication();
 
 app.UseStaticFiles();
 app.UseRouting();

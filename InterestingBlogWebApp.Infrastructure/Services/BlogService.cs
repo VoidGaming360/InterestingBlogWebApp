@@ -1,4 +1,5 @@
-﻿using InterestingBlogWebApp.Application.DTOs;
+﻿using cloudscribe.Pagination.Models;
+using InterestingBlogWebApp.Application.DTOs;
 using InterestingBlogWebApp.Application.Interfaces;
 using InterestingBlogWebApp.Domain.Entities;
 using System.Collections;
@@ -13,8 +14,6 @@ namespace InterestingBlogWebApp.Infrastructure.Services
         {
             _unitOfWork = unitOfWork;
         }
-
-        public BlogService() { }
 
         public void CreateBlog(BlogDTO blog)
         {
@@ -63,6 +62,28 @@ namespace InterestingBlogWebApp.Infrastructure.Services
                 blogDTOs.Add(blogDTO);
             }
             return blogDTOs;
+        }
+
+        public PagedResult<BlogDTO> GetAllForUser(string userId, int pageNumber, int pageSize)
+        {
+            var totalCount = _unitOfWork.GenericRepositories<Blogs>()
+                .Count(a => a.ApplicationUserId == userId);
+
+            var blogs = _unitOfWork.GenericRepositories<Blogs>()
+                .Where(a => a.ApplicationUserId == userId)
+                .OrderByDescending(a => a.Id) //change to DateTime (Created at)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+
+            return new PagedResult<BlogDTO>
+            {
+                TotalItems = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
         }
 
         public BlogDTO GetById(int BlogId)
