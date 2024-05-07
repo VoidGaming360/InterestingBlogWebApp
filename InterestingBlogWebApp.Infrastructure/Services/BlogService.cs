@@ -19,11 +19,9 @@ namespace InterestingBlogWebApp.Infrastructure.Services
         {
             var newBlog = new Blogs
             {
-                Name = blog.Name,
+                Title = blog.Title,
                 Description = blog.Description,
                 ImageURI = blog.ImageURI,
-                Upvotes = blog.Upvotes,
-                Downvotes = blog.Downvotes,
                 ApplicationUserId = blog.ApplicationUserId
                 
             };
@@ -52,11 +50,9 @@ namespace InterestingBlogWebApp.Infrastructure.Services
                 var blogDTO = new BlogDTO
                 {
                     Id = blog.Id,
-                    Name = blog.Name,
+                    Title = blog.Title,
                     Description = blog.Description,
                     ImageURI = blog.ImageURI,
-                    Upvotes = blog.Upvotes,
-                    Downvotes = blog.Downvotes,
                     ApplicationUserId = blog.ApplicationUserId
                 };
                 blogDTOs.Add(blogDTO);
@@ -94,11 +90,9 @@ namespace InterestingBlogWebApp.Infrastructure.Services
                 var blogDTO = new BlogDTO
                 {
                     Id = blog.Id,
-                    Name = blog.Name,
+                    Title = blog.Title,
                     Description = blog.Description,
                     ImageURI = blog.ImageURI,
-                    Upvotes = blog.Upvotes,
-                    Downvotes = blog.Downvotes,
                     ApplicationUserId = blog.ApplicationUserId
                     
                 };
@@ -112,11 +106,9 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             var existingBlog = _unitOfWork.GenericRepositories<Blogs>().GetById(blog.Id);
             if (existingBlog != null)
             {
-                existingBlog.Name = blog.Name;
+                existingBlog.Title = blog.Title;
                 existingBlog.Description = blog.Description;
                 existingBlog.ImageURI = blog.ImageURI;
-                existingBlog.Upvotes = blog.Upvotes;
-                existingBlog.Downvotes = blog.Downvotes;
                 existingBlog.ApplicationUserId = blog.ApplicationUserId;
                 
 
