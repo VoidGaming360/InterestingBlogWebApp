@@ -1,5 +1,4 @@
-﻿
-using InterestingBlogWebApp.Domain.Entities;
+﻿using InterestingBlogWebApp.Domain.Entities;
 
 namespace InterestingBlogWebApp.Application.DTOs
 {

@@ -6,7 +6,6 @@ namespace InterestingBlogWebApp.Domain.Entities
     {
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
-        public new string UserName { get; set; } = string.Empty;
         public string PictureUri { get; set; } = string.Empty;
 
         //relation mapping

@@ -2,10 +2,17 @@ using InterestingBlogWebApp.Application.Interfaces;
 using InterestingBlogWebApp.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using InterestingBlogWebApp.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
 
-builder.Services.AddCustomServices();
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+
+//builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddCustomServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -18,15 +25,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
+
 
 app.UseStaticFiles();
 app.UseRouting();
 
 app.MapControllers();
 
-app.MapIdentityApi<ApplicationUser>();
 app.MapGet("/test", (ClaimsPrincipal user) => $"Hello {user.Identity!.Name}").RequireAuthorization();
 
 DataSeeding(app);
