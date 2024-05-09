@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InterestingBlogWebApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240509105342_notification-model")]
-    partial class notificationmodel
+    [Migration("20240509173120_register")]
+    partial class register
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -492,6 +492,14 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
             modelBuilder.Entity("InterestingBlogWebApp.Domain.Entities.User", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasDiscriminator().HasValue("User");
                 });

@@ -13,6 +13,10 @@ namespace InterestingBlogWebApp.Application.DTOs
         public string Id { get; set; } // User ID
         public string UserName { get; set; }
         public string Email { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
     }
 
 
@@ -28,6 +32,17 @@ namespace InterestingBlogWebApp.Application.DTOs
 
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match")]
         public string ConfirmPassword { get; set; } // Optional: password confirmation
+    }
+
+    public class UpdateUserDTO
+    {
+        public string? Id { get; set; }
+
+        public string UserName { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
     }
     
 }
