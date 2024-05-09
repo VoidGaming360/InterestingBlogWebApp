@@ -203,13 +203,14 @@ namespace InterestingBlogWebApp.Infrastructure.Services
         private Guid UploadImageToLocalFileSystem(IFormFile file, string folder)
         {
             // Generate a unique filename with dashes included
-            var uniqueFileName = Guid.NewGuid().ToString();
+            var uniqueFileName = Guid.NewGuid().ToString("D");
 
             // Combine folder path and filename
-            var filePath = Path.Combine(_imageFolderPath, folder, uniqueFileName);
+            var directoryPath = Path.Combine(_imageFolderPath, folder);
+            var filePath = Path.Combine(directoryPath, uniqueFileName);
 
             // Ensure the directory exists, if not, create it
-            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            Directory.CreateDirectory(directoryPath);
 
             // Save the file to the specified path
             using (var stream = new FileStream(filePath, FileMode.Create))
@@ -217,7 +218,7 @@ namespace InterestingBlogWebApp.Infrastructure.Services
                 file.CopyTo(stream);
             }
 
-            // Return the unique identifier (here, we can use the filename)
+            // Return the unique identifier (here, we can use the filename without dashes)
             return Guid.Parse(uniqueFileName);
         }
 
