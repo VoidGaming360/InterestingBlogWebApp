@@ -1,83 +1,70 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using InterestingBlogWebApp.Application.Interfaces;
+using InterestingBlogWebApp.Application.Common.Interface.IServices;
 using InterestingBlogWebApp.Infrastructure.Persistence;
 using InterestingBlogWebApp.Infrastructure.Services;
 using InterestingBlogWebApp.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Filters;
-using InterestingBlogWebApp.Application.Common_Interfaces;
-using InterestingBlogWebApp.Infrastructure.Repositories;
-using CloudinaryDotNet;
+using InterestingBlogWebApp.Application.Common.Interface.IRepositories;
+using InterestingBlogWebApp.Infrastructures.Repositories;
+using InterestingBlogWebApp.Domain.Auth;
+using InterestingBlogWebApp.Application.Common_Interfaces.IServices;
 
 public static class DependencyInjection
 {
-    public static void AddCustomServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        string imageFolderPath = configuration["ImageFolderPath"];
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(configuration.GetConnectionString("dev"),
+            b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)), ServiceLifetime.Transient);
 
-        services.AddControllers();
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(options =>
+
+        services.AddIdentity<User, IdentityRole>(options =>
         {
-            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-            {
-                In = ParameterLocation.Header,
-                Name = "Authorization",
-                Type = SecuritySchemeType.ApiKey
-            });
-            options.OperationFilter<SecurityRequirementsOperationFilter>();
-        });
+            options.SignIn.RequireConfirmedAccount = false;
+            options.Password.RequireDigit = false;
+            options.Password.RequiredLength = 6;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireLowercase = false;
+        })
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
 
-        services.AddSingleton<Cloudinary>(provider =>
-        {
-            var account = new Account("cloud_name", "api_key", "api_secret"); // Update with actual Cloudinary credentials
-            return new Cloudinary(account);
-        });
+        //services.AddScoped<IAppDbContext>(provider => provider.GetService<AppDbContext>());
 
-        services.AddHttpContextAccessor();
-        services.AddScoped<IDbInitializer, DbInitializer>();
-        services.AddTransient<IUnitOfWork, UnitOfWork>();
+        services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
+
+
+        services.AddDbContext<AppDbContext>();
+
+
+        services.AddTransient(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
+        services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IBlogRepository, BlogRepository>();
-        services.AddTransient<IBlog, BlogService>(provider =>
-        {
-            var cloudinary = provider.GetRequiredService<Cloudinary>();
-            var userManager = provider.GetRequiredService<UserManager<ApplicationUser>>();
-            var blogRepository = provider.GetRequiredService<IBlogRepository>();
-            return new BlogService(userManager, blogRepository, cloudinary, imageFolderPath);
-        });
-        services.AddScoped<IUserAccessor, HttpContextUserAccessor>();
+        services.AddTransient<ICommentRepository, CommentRepository>();
+        services.AddTransient<IBlogVoteRepository, BlogVoteRepository>();
+        services.AddTransient<IBlogLogsheetRepository, BlogLogsheetRepository>();
+        services.AddTransient<ICommentVoteRepository, CommentVoteRepository>();
+        services.AddTransient<ICommentLogsheetRepository, CommentLogsheetRepository>();
 
-        services.AddIdentity<ApplicationUser, IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddSignInManager()
-            .AddRoles<IdentityRole>();
+        //services.AddTransient<IAuthenticationService, AuthenticationService>();
 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    ValidAudience = configuration["Jwt:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
-                };
-            });
 
-        services.AddAuthorization();
+        services.AddTransient<IEmailService, EmailService>();
+        services.AddTransient<IBlogService, BlogService>();
+        services.AddTransient<IUserService, UserService>();
+        services.AddTransient<ICommentService, CommentService>();
+        services.AddTransient<IBlogVoteService, BlogVoteService>();
+        services.AddTransient<IBlogLogsheetService, BlogLogsheetService>();
+        services.AddTransient<ICommentVoteService, CommentVoteService>();
+        services.AddTransient<ICommentLogsheetService, CommentLogsheetService>();
+        services.AddTransient<IAdminDashboardService, AdminDashboardService>();
+        services.AddTransient<INotificationService, NotificationService>();
 
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        services.AddSingleton<EmailConfiguration>();
 
-        System.Globalization.CultureInfo.DefaultThreadCurrentCulture = new System.Globalization.CultureInfo("en-US");
+        return services;
     }
 }
