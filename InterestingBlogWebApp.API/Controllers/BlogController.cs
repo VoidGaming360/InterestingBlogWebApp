@@ -48,6 +48,20 @@ namespace InterestingBlogWebApp.Controllers
             }
         }
 
+        [HttpGet("sorted")]
+        public async Task<IActionResult> GetAllSorted(string sortBy = "random", int pageNumber = 1, int pageSize = 10)
+        {
+            var (blogs, totalPages, totalCount) = await _blogService.GetAllSorted(sortBy, pageNumber, pageSize);
+            var response = new
+            {
+                Blogs = blogs,
+                TotalPages = totalPages,
+                TotalCount = totalCount,
+                CurrentPage = pageNumber
+            };
+            return Ok(response);
+        }
+
 
         [AllowAnonymous]
         [HttpGet("get-by-id/{blogId}")]
