@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using InterestingBlogWebApp.Application.Common.Interface.IServices;
 using InterestingBlogWebApp.Application.Common_Interfaces.IServices;
@@ -117,6 +118,38 @@ public class UserController : ControllerBase
         }
     }
 
+    [HttpPost("update-user-details")]
+    [Authorize] // Ensures the user is logged in
+    public async Task<IActionResult> UpdateUserDetails([FromBody] UpdateUserDTO updateDTO)
+    {
+        // Fetch the user ID from the User Identity
+        var userId = User.FindFirst("userId")?.Value;
+
+        if (updateDTO == null)
+        {
+            return BadRequest("Invalid user data.");
+        }
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest("User ID could not be found.");
+        }
+
+        updateDTO.Id = userId;
+
+        List<string> errors = new List<string>();
+        string result = await _userService.UpdateUserDetails(updateDTO, errors);
+
+        if (result == "User details updated successfully.")
+        {
+            return Ok(result);
+        }
+        else
+        {
+            return BadRequest(new { Message = result, Errors = errors });
+        }
+    }
+
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPasswordInitiate([FromBody] EmailDTO emailDTO)
     {
@@ -151,7 +184,6 @@ public class UserController : ControllerBase
             return StatusCode((int)HttpStatusCode.InternalServerError, new { message = $"Error sending email: {ex.Message}" });
         }
     }
-
 
     [HttpPost("confirm-reset-password")]
     public async Task<IActionResult> ResetPasswordConfirm([FromBody] PasswordResetDTO passwordResetDTO)

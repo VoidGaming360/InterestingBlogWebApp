@@ -14,5 +14,6 @@ namespace InterestingBlogWebApp.Application.Common.Interface.IServices
         Task<string> UpdateUser(UpdateDTO updateUserDTO, List<string> errors);
         Task<UserDTO> GetUserById(string userId);
         Task<string> GetUserNameById(string userId);
+        Task<string> UpdateUserDetails(UpdateUserDTO updateUserDTO, List<string> errors);
     }
 }

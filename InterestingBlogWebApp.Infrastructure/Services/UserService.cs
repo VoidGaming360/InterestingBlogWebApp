@@ -27,7 +27,9 @@ public class UserService : IUserService
         {
             Id = user.Id,
             UserName = user.UserName,
-            Email = user.Email
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName
         }).ToList(); 
 
         return userDTOs; 
@@ -82,6 +84,60 @@ public class UserService : IUserService
 
         return "User updated successfully.";
     }
+
+    public async Task<string> UpdateUserDetails( UpdateUserDTO updateDTO, List<string> errors)
+    {
+        var user = await _userManager.FindByIdAsync(updateDTO.Id);
+
+        if (user == null)
+        {
+            errors.Add("User not found.");
+            return "Update failed.";
+        }
+
+        bool isUpdated = false;
+
+        // Update UserName if it has changed
+        if (updateDTO.UserName != null && updateDTO.UserName != user.UserName)
+        {
+            user.UserName = updateDTO.UserName;
+            isUpdated = true;
+        }
+
+        // Update FirstName if it has changed
+        if (updateDTO.FirstName != null && updateDTO.FirstName != user.FirstName)
+        {
+            user.FirstName = updateDTO.FirstName;
+            isUpdated = true;
+        }
+
+        // Update LastName if it has changed
+        if (updateDTO.LastName != null && updateDTO.LastName != user.LastName)
+        {
+            user.LastName = updateDTO.LastName;
+            isUpdated = true;
+        }
+
+        // Save changes if any updates were made
+        if (isUpdated)
+        {
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return "User details updated successfully.";
+            }
+            else
+            {
+                errors.AddRange(result.Errors.Select(e => e.Description));
+                return "Update failed.";
+            }
+        }
+        else
+        {
+            return "No updates necessary.";
+        }
+    }
+
 
     public async Task<UserDTO> GetUserById(string userId)
     {
