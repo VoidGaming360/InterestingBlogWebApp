@@ -16,6 +16,7 @@ namespace InterestingBlogWebApp.Application.DTOs
         public string Description { get; set; }
         public DateTime CreatedDate { get; set; }
         public bool IsEdited { get; set; }
+        public bool IsMine { get; set; }
         public List<string> Category { get; set; }
         public string Image { get; set; }
         public string UserId { get; set; }

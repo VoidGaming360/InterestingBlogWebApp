@@ -36,7 +36,15 @@ public class CommentController : ControllerBase
     {
         try
         {
+            var userId = User.FindFirst("userId")?.Value;
             var comments = await _commentService.GetAll();
+
+            foreach (var comment in comments)
+            {
+                var userName = await _blogService.GetUserNameById(comment.UserId);
+                comment.UserName = userName;
+                comment.IsMine = comment.UserId == userId;
+            }
             return Ok(comments);
         }
         catch (Exception ex)
@@ -57,8 +65,15 @@ public class CommentController : ControllerBase
             {
                 return Unauthorized(new { message = "User ID not found in token." });
             }
-
+         
             var commentDTOs = await _commentService.GetCommentsByUserId(userId);
+
+            foreach (var comment in commentDTOs)
+            {
+                var userName = await _blogService.GetUserNameById(comment.UserId);
+                comment.UserName = userName;
+                comment.IsMine = comment.UserId == userId;
+            }
             return Ok(commentDTOs);
         }
         catch (KeyNotFoundException ex)
@@ -77,7 +92,15 @@ public class CommentController : ControllerBase
     {
         try
         {
+            var userId = User.FindFirst("userId")?.Value; 
+
             var commentDTOs = await _commentService.GetCommentsByBlogId(blogId);
+            foreach (var comment in commentDTOs)
+            {
+                var userName = await _blogService.GetUserNameById(comment.UserId);
+                comment.UserName = userName;
+                comment.IsMine = comment.UserId == userId;
+            }
             return Ok(commentDTOs);
         }
         catch (KeyNotFoundException ex)
