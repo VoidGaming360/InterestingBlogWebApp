@@ -2,17 +2,21 @@
 using InterestingBlogWebApp.Application.Common.Interface.IServices;
 using InterestingBlogWebApp.Application.DTOs;
 using InterestingBlogWebApp.Domain.Entities;
+using InterestingBlogWebApp.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 public class UserService : IUserService
 {
     private readonly UserManager<User> _userManager;
     private readonly IUserRepository _userRepository;
+    private readonly AppDbContext _context;
 
-    public UserService(UserManager<User> userManager, IUserRepository userRepository)
+    public UserService(UserManager<User> userManager, IUserRepository userRepository, AppDbContext context)
     {
         _userManager = userManager;
         _userRepository = userRepository;
+        _context = context;
     }
 
     public async Task<List<UserDTO>> GetAll()
@@ -27,6 +31,12 @@ public class UserService : IUserService
         }).ToList(); 
 
         return userDTOs; 
+    }
+
+    public async Task<string> GetUserNameById(string userId)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        return user?.UserName; // Returns the UserName if user is found, otherwise null
     }
 
     public async Task<string> DeleteUser(string userId, List<string> errors)
