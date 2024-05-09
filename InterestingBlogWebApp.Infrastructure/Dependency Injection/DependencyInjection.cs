@@ -53,7 +53,6 @@ public static class DependencyInjection
         //services.AddTransient<IAuthenticationService, AuthenticationService>();
 
 
-        services.AddTransient<IEmailService, EmailService>();
         services.AddTransient<IEmailServices, EmailServices>();
         services.AddTransient<IBlogService, BlogService>();
         services.AddTransient<IUserService, UserService>();
