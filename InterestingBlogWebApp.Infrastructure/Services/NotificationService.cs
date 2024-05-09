@@ -64,5 +64,21 @@ namespace InterestingBlogWebApp.Infrastructure.Services
                                               .ToListAsync();
             return notifications;
         }
+
+        public async Task<int> CountUnreadNotifications(string userId)
+        {
+            return await _context.Notifications
+                                 .Where(n => n.ReceiverId == userId && !n.IsRead)
+                                 .CountAsync();
+        }
+
+        public async Task MarkNotificationsAsRead(string userId)
+        {
+            var notifications = _context.Notifications
+                                        .Where(n => n.ReceiverId == userId && !n.IsRead).ToList();
+
+            notifications.ForEach(n => n.IsRead = true);
+            await _context.SaveChangesAsync();
+        }
     }
 }
