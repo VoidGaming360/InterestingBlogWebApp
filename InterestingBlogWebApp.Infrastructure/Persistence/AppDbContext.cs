@@ -24,6 +24,7 @@ namespace InterestingBlogWebApp.Infrastructure.Persistence
         public DbSet<CommentVote> CommentVotes { get; set; }
         public DbSet<BlogLogsheet> BlogLogsheets { get; set; }
         public DbSet<CommentLogsheet> CommentLogsheets { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
     }
 
 }

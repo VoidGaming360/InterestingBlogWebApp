@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using InterestingBlogWebApp.Application.Common.Interface.IServices;
 using InterestingBlogWebApp.Application.DTOs;
 using InterestingBlogWebApp.Application.Helpers;
+using InterestingBlogWebApp.Infrastructure.Services;
+using Microsoft.AspNetCore.SignalR;
+using InterestingBlogWebApp.Application.Common_Interfaces.IServices;
 
 namespace InterestingBlogWebApp.Controllers
 {
@@ -15,10 +18,18 @@ namespace InterestingBlogWebApp.Controllers
     public class BlogReactionController : ControllerBase
     {
         private readonly IBlogVoteService _blogVoteService;
+        private readonly IHubContext<NotificationHub> _notificationHub;
+        private readonly IBlogService _blogService;
+        private readonly INotificationService _notificationService;
 
-        public BlogReactionController(IBlogVoteService blogVoteService)
+        public BlogReactionController(IBlogVoteService blogVoteService, IHubContext<NotificationHub> notificationHub,
+            IBlogService blogService, INotificationService notificationService)
         {
             _blogVoteService = blogVoteService;
+            _notificationHub = notificationHub;
+            _blogService = blogService;
+            _notificationService = notificationService;
+
         }
 
         [HttpGet("get-all")]
@@ -57,12 +68,34 @@ namespace InterestingBlogWebApp.Controllers
             }
 
             blogVoteDTO.UserId = userId;
-
             var response = await _blogVoteService.UpvoteBlog(blogVoteDTO, errors);
 
             if (errors.Count > 0)
             {
                 return BadRequest(new { errors });
+            }
+
+            var blog = await _blogService.GetBlogById(blogVoteDTO.BlogId);
+            if (blog == null)
+            {
+                return NotFound(new { message = "Blog not found." });
+            }
+
+            var authorId = blog.UserId;
+            var upvoterName = await _blogService.GetUserNameById(userId);
+
+            if (userId != authorId)
+            {
+                var notificationMessage = $"{blog.Title} was upvoted by {upvoterName}.";
+                await _notificationHub.Clients.User(authorId).SendAsync("ReceiveNotification", notificationMessage);
+                // Save the notification
+                var notificationDto = new NotificationDTO
+                {
+                    SenderId = userId,
+                    ReceiverId = authorId,
+                    Message = notificationMessage
+                };
+                await _notificationService.SaveNotificationAsync(notificationDto);
             }
 
             return Ok(new { message = response });
