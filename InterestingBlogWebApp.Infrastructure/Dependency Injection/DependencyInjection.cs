@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using InterestingBlogWebApp.Application.Common.Interface.IRepositories;
 using InterestingBlogWebApp.Infrastructures.Repositories;
 using InterestingBlogWebApp.Domain.Auth;
+using InterestingBlogWebApp.Application.Common_Interfaces.IServices;
 
 public static class DependencyInjection
 {
@@ -60,6 +61,7 @@ public static class DependencyInjection
         services.AddTransient<ICommentVoteService, CommentVoteService>();
         services.AddTransient<ICommentLogsheetService, CommentLogsheetService>();
         services.AddTransient<IAdminDashboardService, AdminDashboardService>();
+        services.AddTransient<INotificationService, NotificationService>();
 
         services.AddSingleton<EmailConfiguration>();
 

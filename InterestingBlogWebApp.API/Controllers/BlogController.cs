@@ -4,6 +4,7 @@ using InterestingBlogWebApp.Application.Helpers;
 using InterestingBlogWebApp.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Net;
 
 namespace InterestingBlogWebApp.Controllers
@@ -14,12 +15,14 @@ namespace InterestingBlogWebApp.Controllers
     public class BlogController : ControllerBase
     {
         private readonly IBlogService _blogService;
+        private readonly IHubContext<NotificationHub> _notificationHub;
         private const long MaxFileSizeInBytes = 3 * 1024 * 1024; // 3 Megabytes in bytes
 
 
-        public BlogController(IBlogService blogService)
+        public BlogController(IBlogService blogService, IHubContext<NotificationHub> notificationHub)
         {
             _blogService = blogService;
+            _notificationHub = notificationHub;
         }
 
         [AllowAnonymous]
@@ -107,36 +110,45 @@ namespace InterestingBlogWebApp.Controllers
             var errors = new List<string>();
             try
             {
-                // Retrieve the user ID from the JWT claim
-                var userId = User.FindFirst("userId")?.Value; // Adjust based on your JWT claims
-
-                if (string.IsNullOrEmpty(userId)) // If UserId is not found in the token
+                var userId = User.FindFirst("userId")?.Value;
+                if (string.IsNullOrEmpty(userId))
                 {
                     return Unauthorized(new { message = "User ID not found in token." });
                 }
 
                 blogDTO.UserId = userId;
-
-                // Check if there's an image and validate its size
                 if (blogDTO.Image != null && blogDTO.Image.Length > MaxFileSizeInBytes)
                 {
                     return BadRequest(new { message = "Image size exceeds the 3 MB limit." });
                 }
 
-                var response = await _blogService.AddBlog(blogDTO, errors); // Ensure awaiting asynchronous operation
-
-                if (errors.Count > 0) // If there are validation errors
+                var response = await _blogService.AddBlog(blogDTO, errors);
+                if (errors.Count > 0)
                 {
-                    return BadRequest(new { errors }); // Return 400 Bad Request with errors
+                    return BadRequest(new { errors });
                 }
 
-                return Ok(new { message = response }); // Return success response
+                // Fetch username for a more personalized notification
+                var userName = await _blogService.GetUserNameById(userId);
+                var notificationMessage = $"{blogDTO.Title} created by {userName} successfully.";
+
+                try
+                {
+                    await _notificationHub.Clients.All.SendAsync("ReceiveNotification", notificationMessage);
+                    return Ok(new { message = response, notification = notificationMessage });
+                }
+                catch (Exception notifEx)
+                {
+                    // Return a response including the notification attempt error
+                    return Ok(new { message = response, notificationError = notifEx.Message, notificationAttempted = notificationMessage });
+                }
             }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.Message }); // Return 500 Internal Server Error
+                return StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.Message });
             }
         }
+
 
 
         [Authorize]
