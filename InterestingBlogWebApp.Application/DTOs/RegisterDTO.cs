@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace InterestingBlogWebApp.Application.DTOs
@@ -16,6 +17,7 @@ namespace InterestingBlogWebApp.Application.DTOs
 
         [Required]
         [EmailAddress]
+        
         public string? Email { get; set; }
         [Required]
         [DataType(DataType.Password)]

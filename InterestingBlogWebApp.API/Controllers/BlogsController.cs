@@ -8,79 +8,201 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Reflection.Metadata;
 using System.Security.Claims;
 
 namespace InterestingBlogWebApp.API.Controllers
 {
-    public class BlogsController : Controller
+    public class BlogController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IBlog _blog;
-        private readonly ApplicationDbContext _context;
+        private readonly IBlog _blogService;
+        private const long MaxFileSizeInBytes = 3 * 1024 * 1024; // 3 Megabytes in bytes
 
-        public BlogsController(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IBlog blog, ApplicationDbContext context)
+
+        public BlogController(IBlog blogService)
         {
-            _userManager = userManager;
-            _unitOfWork = unitOfWork;
-            _blog = blog;
-            _context = context;
+            _blogService = blogService;
         }
 
-        public IActionResult Index(int pageNumber = 1, int pageSize = 10)
-        {
-            var userId = _userManager.GetUserId(User);
-
-            var blogs = _blog.GetAllForUser(userId, pageNumber, pageSize);
-
-            return View(blogs);
-        }
-
-
-        //[HttpGet]
-        //[Route("/all-blogs")]
-        //public IActionResult GetAll()
-        //{
-        //    return View(_blog);
-        //}
-
+        [AllowAnonymous]
         [HttpGet]
-        [Route("/all-blogs")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetAll()
         {
-            if (id < 1)
-                return BadRequest();
-            var product = await _context.Blog.FirstOrDefaultAsync(m => m.Id == id);
-            if (product == null)
-                return NotFound();
-            return Ok(product);
+            try
+            {
+                var blogs = await _blogService.GetAll();
+                return Ok(blogs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message); // Handle internal server errors
+            }
+        }
 
+        [AllowAnonymous]
+        [HttpGet("get-by-id/{blogId}")]
+        public async Task<IActionResult> GetBlogById(int blogId) // Get blog by ID
+        {
+            try
+            {
+                var blogDTO = await _blogService.GetBlogById(blogId); // Call the service method
+                return Ok(blogDTO); // Return the blog DTO
+            }
+            catch (KeyNotFoundException ex) // Handle case where the blog doesn't exist
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex) // Handle unexpected errors
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.Message });
+            }
+        }
+
+        
+        [HttpGet("get-by-user")]
+        public async Task<IActionResult> GetBlogsByUserId()
+        {
+            try
+            {
+                var userId = User.FindFirst("userId")?.Value;
+
+                var blogDTOs = await _blogService.GetBlogsByUserId(userId);
+                return Ok(blogDTOs);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message }); // Handle cases where the user or blogs aren't found
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+        
+        [HttpPost("add")]
+        public async Task<IActionResult> AddBlog([FromForm] AddBlogDTO blogDTO)
+        {
+            var errors = new List<string>();
+            try
+            {
+                //// Retrieve the user ID from the JWT claim
+                //var userId = User.FindFirst("userId")?.Value; // Adjust based on your JWT claims
+
+                //if (string.IsNullOrEmpty(userId)) // If UserId is not found in the token
+                //{
+                //    return Unauthorized(new { message = "User ID not found in token." });
+                //}
+
+                //blogDTO.ApplicationUserId = userId;
+
+                // Check if there's an image and validate its size
+                if (blogDTO.Image != null && blogDTO.Image.Length > MaxFileSizeInBytes)
+                {
+                    return BadRequest(new { message = "Image size exceeds the 3 MB limit." });
+                }
+
+                var response = await _blogService.AddBlog(blogDTO, errors); // Ensure awaiting asynchronous operation
+
+                if (errors.Count > 0) // If there are validation errors
+                {
+                    return BadRequest(new { errors }); // Return 400 Bad Request with errors
+                }
+
+                return Ok(new { message = response }); // Return success response
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.InnerException?.Message ?? ex.Message });
+            }
         }
 
 
-        [HttpPost]
-        //[Authorize]
-        [Route("/add-blog")]
-        public async Task<IActionResult> Create(BlogDTO blogDTO)
+        
+        [HttpPut("update-blog")]
+        public async Task<IActionResult> UpdateBlog([FromForm] UpdateBlogDTO updateBlogDTO)
         {
-            //string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            try
+            {
+                var userId = User.FindFirst("userId")?.Value;
 
-            //if (string.IsNullOrEmpty(userId))
-            //{
-            //    return NotFound("User Not Found");
-            //}
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "User ID not found in token." });
+                }
 
-            //blogDTO.ApplicationUserId = userId;
-            
+                var blog = await _blogService.GetBlogById(updateBlogDTO.BlogId);
 
-            // Create the blog using the assigned user ID
-            _blog.CreateBlog(blogDTO);
-            await _unitOfWork.SaveChangesAsync();
-            
-            // Return a response indicating success
-            return CreatedAtAction(nameof(GetById), _blog);
+                if (blog.ApplicationUserId != userId) // Only allow the blog author to update
+                {
+                    return StatusCode(403, new { message = "Only the blog author can update this post." });
+                }
+                // Check the image file size during update
+                if (updateBlogDTO.Image != null && updateBlogDTO.Image.Length > MaxFileSizeInBytes)
+                {
+                    return BadRequest(new { message = "Image size exceeds the 3 MB limit." });
+                }
+                var errors = new List<string>();
+                var response = await _blogService.UpdateBlog(updateBlogDTO, errors);
+
+                if (errors.Count > 0)
+                {
+                    return BadRequest(new { errors });
+                }
+
+                return Ok(new { message = response });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.Message });
+            }
         }
 
+        
+        [HttpDelete("delete/{blogId}")]
+        public async Task<IActionResult> DeleteBlog(int blogId)
+        {
+            var errors = new List<string>();
+            try
+            {
+                //var userId = User.FindFirst("userId")?.Value;
+
+                //if (string.IsNullOrEmpty(userId))
+                //{
+                //    return Unauthorized(new { message = "User ID not found in token." });
+                //}
+
+                //var blog = await _blogService.GetBlogById(blogId);
+
+                //if (blog.ApplicationUserId != userId) // Only allow the blog author to delete
+                //{
+                //    return StatusCode(403, new { message = "Only the blog author can delete this post." });
+                //}
+
+                var response = await _blogService.DeleteBlog(blogId, errors);
+
+                if (errors.Count > 0)
+                {
+                    return BadRequest(new { errors });
+                }
+
+                return Ok(new { message = response });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.InnerException?.Message ?? ex.Message });
+            }
+        }
 
     }
+
 }

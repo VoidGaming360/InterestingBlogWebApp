@@ -1,121 +1,229 @@
-﻿using cloudscribe.Pagination.Models;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using InterestingBlogWebApp.Application.Common_Interfaces;
 using InterestingBlogWebApp.Application.DTOs;
 using InterestingBlogWebApp.Application.Interfaces;
 using InterestingBlogWebApp.Domain.Entities;
-using System.Collections;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace InterestingBlogWebApp.Infrastructure.Services
 {
     public class BlogService : IBlog
     {
-        private IUnitOfWork _unitOfWork;
-        public BlogService(IUnitOfWork unitOfWork)
+        private Cloudinary _cloudinary;
+        private Account _account;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IBlogRepository _blogRepository;
+        private readonly string _imageFolderPath;
+
+        public BlogService(UserManager<ApplicationUser> userManager, IBlogRepository blogRepository, Cloudinary cloudinary, string imageFolderPath)
         {
-            _unitOfWork = unitOfWork;
+            _userManager = userManager;
+            _blogRepository = blogRepository;
+            _cloudinary = cloudinary;
+            _imageFolderPath = imageFolderPath;
         }
 
-        public void CreateBlog(BlogDTO blog)
+        public async Task<List<BlogDTO>> GetAll()
         {
-            var newBlog = new Blogs
-            {
-                Title = blog.Title,
-                Description = blog.Description,
-                ImageURI = blog.ImageURI,
-                ApplicationUserId = blog.ApplicationUserId
-                
-                
-            };
+            // Retrieve all blogs associated with the userId
+            var blogs = await _blogRepository.GetAll(null); // Get all blogs
 
-            _unitOfWork.GenericRepositories<Blogs>().Add(newBlog);
-            _unitOfWork.Save();
-        }
 
-        public void DeleteBlog(int id)
-        {
-            var blog = _unitOfWork.GenericRepositories<Blogs>().GetById(id);
-            if (blog != null)
-            {
-                _unitOfWork.GenericRepositories<Blogs>().Delete(blog);
-                _unitOfWork.Save();
-            }
-
-        }
-
-        public IEnumerable<BlogDTO> GetAll()
-        {
-            var blogs = _unitOfWork.GenericRepositories<Blogs>().GetAll();
             var blogDTOs = new List<BlogDTO>();
+
             foreach (var blog in blogs)
             {
+                var user = await _userManager.FindByIdAsync(blog.ApplicationUserId); // Use await to avoid blocking
+
                 var blogDTO = new BlogDTO
                 {
                     Id = blog.Id,
                     Title = blog.Title,
                     Description = blog.Description,
-                    ImageURI = blog.ImageURI,
-                    ApplicationUserId = blog.ApplicationUserId
+                    CreatedAt = blog.CreatedAt,
+                    Image = blog.Image.ToString(),
+                    ApplicationUserId = user.Id  // Ensure UserId is passed to the DTO
                 };
+
                 blogDTOs.Add(blogDTO);
             }
-            return blogDTOs;
+
+            return blogDTOs.OrderByDescending(r => r.CreatedAt).ToList();
         }
 
-        public PagedResult<BlogDTO> GetAllForUser(string userId, int pageNumber, int pageSize)
+        public async Task<BlogDTO> GetBlogById(int blogId)
         {
-            var totalCount = _unitOfWork.GenericRepositories<Blogs>()
-                .Count(a => a.ApplicationUserId == userId);
+            var blog = await _blogRepository.GetById(blogId);
 
-            var blogs = _unitOfWork.GenericRepositories<Blogs>()
-                .Where(a => a.ApplicationUserId == userId)
-                .OrderByDescending(a => a.Id) //change to DateTime (Created at)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-
-            return new PagedResult<BlogDTO>
+            if (blog == null)
             {
-                TotalItems = totalCount,
-                PageNumber = pageNumber,
-                PageSize = pageSize
+                throw new KeyNotFoundException("Blog not found."); // Handle case where blog doesn't exist
+            }
+
+            return new BlogDTO
+            {
+                Id = blog.Id,
+                Title = blog.Title,
+                Description = blog.Description,
+                CreatedAt = blog.CreatedAt,
+                Image = blog.Image.ToString(),
+                ApplicationUserId = blog.ApplicationUserId
             };
-
         }
 
-        public BlogDTO GetById(int BlogId)
+        public async Task<List<BlogDTO>> GetBlogsByUserId(string userId)
         {
-            var blog = _unitOfWork.GenericRepositories<Blogs>().GetById(BlogId);
-            if (blog != null)
+            var blogs = await _blogRepository.GetAll(null);
+
+            var userBlogs = blogs.Where(blog => blog.ApplicationUserId == userId).ToList();
+
+            var blogDTOs = new List<BlogDTO>();
+
+            foreach (var blog in userBlogs)
             {
+                var user = await _userManager.FindByIdAsync(blog.ApplicationUserId);
+
                 var blogDTO = new BlogDTO
                 {
                     Id = blog.Id,
-                    Title = blog.Title,
                     Description = blog.Description,
-                    ImageURI = blog.ImageURI,
-                    ApplicationUserId = blog.ApplicationUserId
-                    
+                    CreatedAt = blog.CreatedAt,
+                    Image = blog.Image.ToString(),
+                    Title = blog.Title,
+                    ApplicationUserId = user.Id
                 };
-                return blogDTO;
+
+                blogDTOs.Add(blogDTO);
             }
-            return null;
+
+            return blogDTOs.OrderByDescending(r => r.CreatedAt).ToList();
         }
 
-        public void UpdateBlog(BlogDTO blog)
+        public async Task<string> AddBlog(AddBlogDTO blogDTO, List<string> errors)
         {
-            var existingBlog = _unitOfWork.GenericRepositories<Blogs>().GetById(blog.Id);
-            if (existingBlog != null)
+            if (blogDTO.Image == null)
             {
-                existingBlog.Title = blog.Title;
-                existingBlog.Description = blog.Description;
-                existingBlog.ImageURI = blog.ImageURI;
-                existingBlog.ApplicationUserId = blog.ApplicationUserId;
-                
 
-                _unitOfWork.GenericRepositories<Blogs>().Update(existingBlog);
-                _unitOfWork.Save();
+                return "There is no image";
+            }
+            var imageId = UploadImageToLocalFileSystem(blogDTO.Image, "Blogs/Images");
+            if (imageId == Guid.Empty)
+            {
+                errors.Add("Image upload failed.");
+                return null;
+            }
+
+            var user = await _userManager.FindByIdAsync(blogDTO.ApplicationUserId);
+            if (user == null)
+            {
+                errors.Add("User not found.");
+                return "Blog addition failed.";
+            }
+
+            var newBlog = new Blogs
+            {
+                Description = blogDTO.Description,
+                CreatedAt = DateTime.UtcNow,
+                Image = imageId,
+                Title = blogDTO.Title,
+                //ApplicationUserId = blogDTO.ApplicationUserId,
+                Score = 0,
+                UpVoteCount = 0,
+                DownVoteCount = 0
+            };
+
+            await _blogRepository.Add(newBlog);
+            await _blogRepository.SaveChangesAsync();
+
+            return "Blog added successfully.";
+        }
+
+        public async Task<string> DeleteBlog(int blogId, List<string> errors)
+        {
+            var blog = await _blogRepository.GetById(blogId);
+
+            if (blog == null)
+            {
+                errors.Add("Blog not found.");
+                return "Blog deletion failed.";
+            }
+
+            await _blogRepository.Delete(blog);
+            await _blogRepository.SaveChangesAsync(); // Ensure SaveChangesAsync() is called
+
+            return "Blog deleted successfully.";
+        }
+
+        public async Task<string> UpdateBlog(UpdateBlogDTO updateBlogDTO, List<string> errors)
+        {
+            try
+            {
+                // Fetch the blog to be updated by its ID
+                var existingBlog = await _blogRepository.GetById(updateBlogDTO.BlogId);
+
+                if (existingBlog == null) // Check if the blog exists
+                {
+                    errors.Add("Blog not found.");
+                    return "Blog update failed.";
+                }
+
+                // Update the existing blog with the provided data
+                existingBlog.Title = updateBlogDTO.Title ?? existingBlog.Title; // If null, keep the current value
+                existingBlog.Description = updateBlogDTO.Description ?? existingBlog.Description;
+                existingBlog.Score = existingBlog.Score;
+                existingBlog.UpVoteCount = existingBlog.UpVoteCount;
+                existingBlog.DownVoteCount = existingBlog.DownVoteCount;
+
+                // Initialize imagelogId with a default value
+                Guid imagelogId = existingBlog.Image;
+
+                if (updateBlogDTO.Image != null)
+                {
+                    var imageId = UploadImageToLocalFileSystem(updateBlogDTO.Image, "Blogs/Images");
+                    existingBlog.Image = imageId;
+                    imagelogId = imageId;
+                }
+
+                // Commit the changes to the database
+                await _blogRepository.Update(existingBlog);
+                await _blogRepository.SaveChangesAsync(); // Commit changes
+
+                return "Blog updated successfully."; // Return success message
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"An error occurred while updating the blog: {ex.Message}");
+                return "Blog update failed."; // Return failure message with error details
             }
         }
+
+        private Guid UploadImageToLocalFileSystem(IFormFile file, string folder)
+        {
+            // Generate a unique filename with dashes included
+            var uniqueFileName = Guid.NewGuid().ToString();
+
+            // Combine folder path and filename
+            var filePath = Path.Combine(_imageFolderPath, folder, uniqueFileName);
+
+            // Ensure the directory exists, if not, create it
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+
+            // Save the file to the specified path
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                file.CopyTo(stream);
+            }
+
+            // Return the unique identifier (here, we can use the filename)
+            return Guid.Parse(uniqueFileName);
+        }
+
+
     }
+
 }
+
+    
