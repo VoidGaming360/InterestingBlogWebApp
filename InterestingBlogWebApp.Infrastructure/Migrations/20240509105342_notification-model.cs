@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InterestingBlogWebApp.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initialmigrate : Migration
+    public partial class notificationmodel : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -51,6 +51,23 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SenderId = table.Column<string>(type: "text", nullable: false),
+                    ReceiverId = table.Column<string>(type: "text", nullable: false),
+                    Message = table.Column<string>(type: "text", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsRead = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -467,6 +484,9 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "CommentVotes");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

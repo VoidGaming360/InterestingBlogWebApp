@@ -54,6 +54,7 @@ public static class DependencyInjection
 
 
         services.AddTransient<IEmailService, EmailService>();
+        services.AddTransient<IEmailServices, EmailServices>();
         services.AddTransient<IBlogService, BlogService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<ICommentService, CommentService>();
