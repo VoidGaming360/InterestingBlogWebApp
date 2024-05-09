@@ -1,15 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using InterestingBlogWebApp.Application.Common.Interface.IServices;
 using Microsoft.AspNetCore.Mvc;
-using InterestingBlogWebApp.Application.Common.Interface.IServices;
-using InterestingBlogWebApp.Application.DTOs;
-using System;
-using System.Threading.Tasks;
 
-namespace InterestingBlogWebApp.Controllers
+namespace BisleriumProject.Controllers
 {
-    //[Authorize(Roles = "Admin")] // Only admins should have access
-    [Route("api/admin-dashboard")]
     [ApiController]
+    [Route("api/admin-dashboard")]
     public class AdminDashboardController : ControllerBase
     {
         private readonly IAdminDashboardService _adminDashboardService;
@@ -19,21 +14,32 @@ namespace InterestingBlogWebApp.Controllers
             _adminDashboardService = adminDashboardService;
         }
 
-        [HttpGet("get-dashboard-data")]
-        public async Task<IActionResult> GetDashboardData([FromQuery] int month, [FromQuery] int year)
+        [HttpGet("cumulative-count")]
+        public async Task<IActionResult> GetCumulativeCount()
         {
-            try
-            {
-                // Fetch the dashboard data for the specified month and year
-                var dashboardData = await _adminDashboardService.GetDashboardData(month, year);
+            var data = await _adminDashboardService.GetCumulativeCount();
+            return Ok(data);
+        }
 
-                return Ok(dashboardData); // Return the data with a 200 status code
-            }
-            catch (Exception ex)
-            {
-                // Handle errors
-                return StatusCode(500, new { message = $"An error occurred while fetching dashboard data: {ex.Message}" });
-            }
+        [HttpGet("monthly-count")]
+        public async Task<IActionResult> GetMonthlyCount([FromQuery] int month, [FromQuery] int year)
+        {
+            var data = await _adminDashboardService.GetMonthlyCount(month, year);
+            return Ok(data);
+        }
+
+        [HttpGet("top-posts")]
+        public async Task<IActionResult> GetTopPosts([FromQuery] int month = 0, [FromQuery] int year = 0)
+        {
+            var data = await _adminDashboardService.GetTopPosts(month, year);
+            return Ok(data);
+        }
+
+        [HttpGet("top-bloggers")]
+        public async Task<IActionResult> GetTopBloggers([FromQuery] int month = 0, [FromQuery] int year = 0)
+        {
+            var data = await _adminDashboardService.GetTopBloggers(month, year);
+            return Ok(data);
         }
     }
 }

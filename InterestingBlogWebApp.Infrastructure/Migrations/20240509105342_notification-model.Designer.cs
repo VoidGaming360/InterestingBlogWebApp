@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InterestingBlogWebApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240509071134_notifcation-migrate")]
-    partial class notifcationmigrate
+    [Migration("20240509105342_notification-model")]
+    partial class notificationmodel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
