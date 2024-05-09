@@ -24,6 +24,7 @@ namespace InterestingBlogWebApp.Infrastructure.Services
                 ImageURI = blog.ImageURI,
                 ApplicationUserId = blog.ApplicationUserId
                 
+                
             };
 
             _unitOfWork.GenericRepositories<Blogs>().Add(newBlog);
