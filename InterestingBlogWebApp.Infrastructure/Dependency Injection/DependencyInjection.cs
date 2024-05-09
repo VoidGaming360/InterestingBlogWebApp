@@ -58,7 +58,7 @@ public static class DependencyInjection
         services.AddTransient<IBlogService, BlogService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<ICommentService, CommentService>();
-        services.AddTransient<IBlogVoteService, BlogVoteService>();
+        services.AddTransient<IBlogVoteService, BlogReactionService>();
         services.AddTransient<IBlogLogsheetService, BlogLogsheetService>();
         services.AddTransient<ICommentVoteService, CommentVoteService>();
         services.AddTransient<ICommentLogsheetService, CommentLogsheetService>();
