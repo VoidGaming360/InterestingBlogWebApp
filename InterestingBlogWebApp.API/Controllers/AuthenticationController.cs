@@ -67,10 +67,16 @@ namespace InterestingBlogWebApp.Controllers
             var jwtToken = tokenHandler.WriteToken(token);
 
             return Ok(new Response(
-                new { token = jwtToken, expiration = token.ValidTo },
-                null,
-                HttpStatusCode.OK
-            ));
+            new
+            {
+                token = jwtToken,
+                expiration = token.ValidTo,
+                userId = user.Id,
+                role = userRoles.FirstOrDefault()
+            },
+            null,
+            HttpStatusCode.OK
+        ));
         }
 
         [HttpPost]
