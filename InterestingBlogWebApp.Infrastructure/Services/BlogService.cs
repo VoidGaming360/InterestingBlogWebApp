@@ -67,6 +67,63 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             return blogDTOs.OrderByDescending(r => r.CreatedDate).ToList(); 
         }
 
+        public async Task<(List<BlogDTO> Blogs, int TotalPages, int TotalCount)> GetAllSorted(string sortBy, int pageNumber, int pageSize)
+        {
+            var blogs = await _blogRepository.GetAll(null);
+
+            IEnumerable<Blog> sortedBlogs;
+
+            switch (sortBy.ToLower())
+            {
+                case "popularity":
+                    sortedBlogs = blogs.OrderByDescending(b => b.UpVoteCount);
+                    break;
+                case "recency":
+                    sortedBlogs = blogs.OrderByDescending(b => b.CreatedDate);
+                    break;
+                case "random":
+                    var random = new Random();
+                    sortedBlogs = blogs.OrderBy(b => random.Next());
+                    break;
+                default:
+                    sortedBlogs = blogs.OrderBy(_ => Guid.NewGuid());
+                    break;
+            }
+
+            var totalCount = sortedBlogs.Count();
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            var pagedBlogs = sortedBlogs
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+            var blogDTOs = new List<BlogDTO>();
+
+            foreach (var blog in pagedBlogs)
+            {
+                var user = await _userManager.FindByIdAsync(blog.UserId);
+
+                var blogDTO = new BlogDTO
+                {
+                    Id = blog.Id,
+                    Description = blog.Description,
+                    CreatedDate = blog.CreatedDate,
+                    IsEdited = blog.IsEdited,
+                    Category = blog.Category,
+                    Image = blog.Image.ToString(),
+                    Title = blog.Title,
+                    Score = blog.Score ?? 0,
+                    UpVoteCount = blog.UpVoteCount ?? 0,
+                    DownVoteCount = blog.DownVoteCount ?? 0,
+                    UserId = user.Id
+                };
+
+                blogDTOs.Add(blogDTO);
+            }
+
+            return (blogDTOs, totalPages, totalCount);
+        }
+
         public async Task<BlogDTO> GetBlogById(int blogId)
         {
             var blog = await _blogRepository.GetById(blogId);
