@@ -31,7 +31,7 @@ namespace InterestingBlogWebApp.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] LoginDTO model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
@@ -81,7 +81,7 @@ namespace InterestingBlogWebApp.Controllers
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<IActionResult> Register([FromBody] RegisterDTO model)
         {
             var userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)
@@ -128,7 +128,7 @@ namespace InterestingBlogWebApp.Controllers
         //[Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("register-admin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
+        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterDTO model)
         {
             var userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)

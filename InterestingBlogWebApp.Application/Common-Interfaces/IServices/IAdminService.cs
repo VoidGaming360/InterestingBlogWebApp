@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace InterestingBlogWebApp.Application.Common.Interface.IServices
 {
-    public interface IAdminDashboardService
+    public interface IAdminService
     {
         Task<AdminDashboardDataDTO> GetCumulativeCount();
         Task<AdminDashboardDataDTO> GetMonthlyCount(int month, int year);

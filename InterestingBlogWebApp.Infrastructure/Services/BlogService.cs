@@ -18,10 +18,11 @@ namespace InterestingBlogWebApp.Infrastructure.Services
         private CloudinarySettings _cloudinarySettings;
         private Account _account;
         private readonly IBlogRepository _blogRepository;
-        private readonly IBlogLogsheetRepository _blogLogsheetRepository;
+        private readonly IBlogRecordRepository _blogRecordRepository;
         private readonly UserManager<User> _userManager;
 
-        public BlogService(IBlogRepository blogsRepository, UserManager<User> userManager, IOptions<CloudinarySettings> cloudinarySettingsOptions, IBlogLogsheetRepository blogLogsheetRepository)
+        public BlogService(IBlogRepository blogsRepository, UserManager<User> userManager, 
+            IOptions<CloudinarySettings> cloudinarySettingsOptions, IBlogRecordRepository blogRecordRepository)
         {
             _cloudinarySettings = cloudinarySettingsOptions.Value;
             _account = new Account(
@@ -31,7 +32,7 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             _cloudinary = new Cloudinary(_account);
             _blogRepository = blogsRepository;
             _userManager = userManager;
-            _blogLogsheetRepository = blogLogsheetRepository;
+            _blogRecordRepository = blogRecordRepository;
         }
 
         public async Task<List<BlogDTO>> GetAll()
@@ -280,8 +281,8 @@ namespace InterestingBlogWebApp.Infrastructure.Services
 
 
 
-                // Create a new logsheet entry with the updated details
-                var blogLogsheetDTO = new BlogLogsheet
+                // Create a new Record entry with the updated details
+                var blogLogsheetDTO = new BlogRecord
                 {
                     Title = existingBlog.Title, // Use the updated title
                     Description = existingBlog.Description, // Use the updated description
@@ -292,9 +293,9 @@ namespace InterestingBlogWebApp.Infrastructure.Services
                     Image = imagelogId
                 };
 
-                // Add the logsheet to the repository
-                await _blogLogsheetRepository.Add(blogLogsheetDTO);
-                await _blogLogsheetRepository.SaveChangesAsync(); // Commit changes
+                // Add the Record to the repository
+                await _blogRecordRepository.Add(blogLogsheetDTO);
+                await _blogRecordRepository.SaveChangesAsync(); // Commit changes
 
 
                 return "Blog updated successfully."; // Return success message

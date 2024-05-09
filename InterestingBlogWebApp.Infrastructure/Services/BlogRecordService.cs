@@ -13,31 +13,31 @@ using System.Threading.Tasks;
 
 namespace InterestingBlogWebApp.Infrastructure.Services
 {
-    public class BlogLogsheetService : IBlogLogsheetService
+    public class BlogRecordService : IBlogRecordService
     {
-        private readonly IBlogLogsheetRepository _blogLogsheetRepository;
+        private readonly IBlogRecordRepository _blogRecordRepository;
         private readonly UserManager<User> _userManager;
 
-        public BlogLogsheetService(IBlogLogsheetRepository blogsLogsheetRepository, UserManager<User> userManager)
+        public BlogRecordService(IBlogRecordRepository blogsRecordRepository, UserManager<User> userManager)
         {
-            
-            _blogLogsheetRepository = blogsLogsheetRepository;
+
+            _blogRecordRepository = blogsRecordRepository;
             _userManager = userManager;
         }
 
-        public async Task<List<BlogLogsheetDTO>> GetAll()
+        public async Task<List<BlogRecordDTO>> GetAll()
         {
             // Retrieve all blog logs associated with the userId
-            var blogLogsheets = await _blogLogsheetRepository.GetAll(null); // Get all blog logs
+            var blogLogsheets = await _blogRecordRepository.GetAll(null); // Get all blog logs
 
 
-            var blogLogsheetDTOs = new List<BlogLogsheetDTO>();
+            var blogLogsheetDTOs = new List<BlogRecordDTO>();
 
             foreach (var blogLog in blogLogsheets)
             {
                 var user = await _userManager.FindByIdAsync(blogLog.UserId); // Use await to avoid blocking
 
-                var blogLogDTO = new BlogLogsheetDTO
+                var blogLogDTO = new BlogRecordDTO
                 {
                     Id = blogLog.Id,
                     Description = blogLog.Description,
@@ -55,16 +55,16 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             return blogLogsheetDTOs.OrderByDescending(r => r.UpdatedAt).ToList();
         }
 
-        public async Task<BlogLogsheetDTO> GetBlogLogsheetById(int blogLogsheetId)
+        public async Task<BlogRecordDTO> GetBlogLogsheetById(int blogLogsheetId)
         {
-            var blogLog = await _blogLogsheetRepository.GetById(blogLogsheetId);
+            var blogLog = await _blogRecordRepository.GetById(blogLogsheetId);
 
             if (blogLog == null)
             {
                 throw new KeyNotFoundException("Blog logsheet not found."); // Handle case where blog doesn't exist
             }
 
-            return new BlogLogsheetDTO
+            return new BlogRecordDTO
             {
                 Id = blogLog.Id,
                 Title = blogLog.Title,
@@ -77,19 +77,19 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             };
         }
 
-        public async Task<List<BlogLogsheetDTO>> GetBlogsLogsByUserId(string userId)
+        public async Task<List<BlogRecordDTO>> GetBlogsLogsByUserId(string userId)
         {
-            var blogLogsheets = await _blogLogsheetRepository.GetAll(null);
+            var blogLogsheets = await _blogRecordRepository.GetAll(null);
 
             var userBlogLogsheets = blogLogsheets.Where(blog => blog.UserId == userId).ToList();
 
-            var blogLogsheetDTOs = new List<BlogLogsheetDTO>();
+            var blogLogsheetDTOs = new List<BlogRecordDTO>();
 
             foreach (var blogLog in userBlogLogsheets)
             {
                 var user = await _userManager.FindByIdAsync(blogLog.UserId);
 
-                var blogLogsheetDTO = new BlogLogsheetDTO
+                var blogLogsheetDTO = new BlogRecordDTO
                 {
                     Id = blogLog.Id,
                     Title = blogLog.Title,
@@ -106,19 +106,19 @@ namespace InterestingBlogWebApp.Infrastructure.Services
 
             return blogLogsheetDTOs.OrderByDescending(r => r.UpdatedAt).ToList();
         }
-        public async Task<List<BlogLogsheetDTO>> GetBlogLogsheetByBlog(int blogId)
+        public async Task<List<BlogRecordDTO>> GetBlogLogsheetByBlog(int blogId)
         {
-            var blogLogsheets = await _blogLogsheetRepository.GetAll(null);
+            var blogLogsheets = await _blogRecordRepository.GetAll(null);
 
             var blogIdLogsheets = blogLogsheets.Where(log => log.BlogId == blogId).ToList();
 
-            var blogLogsheetDTOs = new List<BlogLogsheetDTO>();
+            var blogLogsheetDTOs = new List<BlogRecordDTO>();
 
             foreach (var blogLog in blogIdLogsheets)
             {
                 var user = await _userManager.FindByIdAsync(blogLog.UserId);
 
-                var blogLogsheetDTO = new BlogLogsheetDTO
+                var blogLogsheetDTO = new BlogRecordDTO
                 {
                     Id = blogLog.Id,
                     Title = blogLog.Title,

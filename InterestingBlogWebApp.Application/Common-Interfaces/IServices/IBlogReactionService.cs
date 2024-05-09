@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace InterestingBlogWebApp.Application.Common.Interface.IServices
 {
-    public interface IBlogVoteService
+    public interface IBlogReactionService
     {
-        Task<List<BlogVoteDTO>> GetAll();
-        Task<List<BlogVoteDTO>> GetBlogVotesByUserId(string id);
+        Task<List<BlogReactionDTO>> GetAll();
+        Task<List<BlogReactionDTO>> GetBlogVotesByUserId(string id);
         Task<string> UpvoteBlog(UpvoteBlogDTO blogvote, List<string> errors);
         Task<string> DownvoteBlog(DownvoteBlogDTO blogvote, List<string> errors);
-        Task<BlogVoteDTO> GetVoteById(int voteId);
-        Task<IEnumerable<BlogVoteDTO>> GetAllVotesForBlog(int blogId); 
+        Task<BlogReactionDTO> GetVoteById(int voteId);
+        Task<IEnumerable<BlogReactionDTO>> GetAllVotesForBlog(int blogId); 
         Task<int> CalculateBlogPopularity(int blogId);
-        Task<BlogVoteDTO> GetVote(int blogId, string userId); 
+        Task<BlogReactionDTO> GetVote(int blogId, string userId); 
 
     }
 }

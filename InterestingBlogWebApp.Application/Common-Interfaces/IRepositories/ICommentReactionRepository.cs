@@ -2,15 +2,15 @@
 
 namespace InterestingBlogWebApp.Application.Common.Interface.IRepositories
 {
-    public interface ICommentVoteRepository : IRepositoryBase<CommentVote>
+    public interface ICommentReactionRepository : IRepositoryBase<CommentRecord>
     {
         // Get all votes for a specific comment ID
-        Task<IEnumerable<CommentVote>> GetAllVotesForComment(int commentId);
+        Task<IEnumerable<CommentRecord>> GetAllVotesForComment(int commentId);
 
         // Get all votes by a specific user
-        Task<CommentVote> GetAllVotesByUserId(string userId);
+        Task<CommentRecord> GetAllVotesByUserId(string userId);
 
         // Get a specific vote by comment and user ID
-        Task<CommentVote> GetVote(int commentId, string userId);
+        Task<CommentRecord> GetVote(int commentId, string userId);
     }
 }

@@ -12,24 +12,24 @@ using System.Threading.Tasks;
 
 namespace InterestingBlogWebApp.Infrastructure.Services
 {
-    public class CommentVoteService : ICommentVoteService
+    public class CommentReactionService : ICommentReactionService
     {
-        private readonly ICommentVoteRepository _commentVoteRepository;
+        private readonly ICommentReactionRepository _commentVoteRepository;
         private readonly ICommentService _commentService;
         private readonly UserManager<User> _userManager;
 
-        public CommentVoteService(ICommentVoteRepository commentVoteRepository, ICommentService commentService, UserManager<User> userManager)
+        public CommentReactionService(ICommentReactionRepository commentVoteRepository, ICommentService commentService, UserManager<User> userManager)
         {
             _commentVoteRepository = commentVoteRepository;
             _commentService = commentService;
             _userManager = userManager;
         }
 
-        public async Task<List<CommentVoteDTO>> GetAll()
+        public async Task<List<CommentReactionDTO>> GetAll()
         {
             var commentVotes = await _commentVoteRepository.GetAll(null);
 
-            return commentVotes.Select(vote => new CommentVoteDTO
+            return commentVotes.Select(vote => new CommentReactionDTO
             {
                 Id = vote.Id,
                 CommentId = vote.CommentId,
@@ -39,17 +39,17 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             }).ToList();
         }
 
-        public async Task<List<CommentVoteDTO>> GetCommentVotesByUserId(string userId)
+        public async Task<List<CommentReactionDTO>> GetCommentVotesByUserId(string userId)
         {
             var votes = await _commentVoteRepository.GetAll(null);
 
             var userCommentVotes = votes.Where(vote => vote.UserId == userId).ToList();
 
-            var commentVoteDTOs = new List<CommentVoteDTO>();
+            var commentVoteDTOs = new List<CommentReactionDTO>();
 
             foreach (var commentVote in userCommentVotes)
             {
-                var commentVoteDTO = new CommentVoteDTO
+                var commentVoteDTO = new CommentReactionDTO
                 {
                     Id = commentVote.Id,
                     CommentId = commentVote.CommentId,
@@ -64,7 +64,7 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             return commentVoteDTOs.OrderByDescending(v => v.CreatedDate).ToList();
         }
 
-        public async Task<CommentVoteDTO> GetCommentVote(int commentId, string userId)
+        public async Task<CommentReactionDTO> GetCommentVote(int commentId, string userId)
         {
             var commentVote = await _commentVoteRepository.GetVote(commentId, userId);
 
@@ -73,7 +73,7 @@ namespace InterestingBlogWebApp.Infrastructure.Services
                 return null; // No vote found for the specified comment and user
             }
 
-            return new CommentVoteDTO
+            return new CommentReactionDTO
             {
                 Id = commentVote.Id,
                 CommentId = commentVote.CommentId,
@@ -83,11 +83,11 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             };
         }
 
-        public async Task<CommentVoteDTO> GetCommentVoteById(int voteId)
+        public async Task<CommentReactionDTO> GetCommentVoteById(int voteId)
         {
             var commentVote = await _commentVoteRepository.GetById(voteId);
 
-            return new CommentVoteDTO
+            return new CommentReactionDTO
             {
                 Id = commentVote.Id,
                 CommentId = commentVote.CommentId,
@@ -97,17 +97,17 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             };
         }
 
-        public async Task<IEnumerable<CommentVoteDTO>> GetAllVotesForComment(int commentId)
+        public async Task<IEnumerable<CommentReactionDTO>> GetAllVotesForComment(int commentId)
         {
             var votes = await _commentVoteRepository.GetAll(null);
 
             var commentVotes = votes.Where(vote => vote.CommentId == commentId).ToList();
 
-            var commentVoteDTOs = new List<CommentVoteDTO>();
+            var commentVoteDTOs = new List<CommentReactionDTO>();
 
             foreach (var vote in commentVotes)
             {
-                var commentVoteDTO = new CommentVoteDTO
+                var commentVoteDTO = new CommentReactionDTO
                 {
                     Id = vote.Id,
                     CreatedDate = vote.CreatedDate,
@@ -144,7 +144,7 @@ namespace InterestingBlogWebApp.Infrastructure.Services
                 }
                 else
                 {
-                    var newVote = new CommentVote
+                    var newVote = new CommentRecord
                     {
                         CommentId = commentVoteDTO.CommentId,
                         UserId = commentVoteDTO.UserId,
@@ -189,7 +189,7 @@ namespace InterestingBlogWebApp.Infrastructure.Services
                 }
                 else
                 {
-                    var newVote = new CommentVote
+                    var newVote = new CommentRecord
                     {
                         CommentId = commentVoteDTO.CommentId,
                         UserId = commentVoteDTO.UserId,

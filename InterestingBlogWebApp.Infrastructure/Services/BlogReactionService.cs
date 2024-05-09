@@ -10,16 +10,16 @@ using InterestingBlogWebApp.Domain.Entities;
 using InterestingBlogWebApp.Infrastructures.Repositories;
 using Microsoft.AspNetCore.Identity;
 
-public class BlogVoteService : IBlogVoteService
+public class BlogReactionService : IBlogReactionService
 {
-    private readonly IBlogVoteRepository _blogVoteRepository;
+    private readonly IBlogReactionRepository _blogVoteRepository;
     private readonly IBlogRepository _blogRepository;
     private readonly UserManager<User> _userManager;
     private readonly ICommentService _commentService;
 
 
 
-    public BlogVoteService(IBlogVoteRepository blogVoteRepository, IBlogRepository blogRepository, UserManager<User> userManager, ICommentService commentService)
+    public BlogReactionService(IBlogReactionRepository blogVoteRepository, IBlogRepository blogRepository, UserManager<User> userManager, ICommentService commentService)
     {
         _blogVoteRepository = blogVoteRepository;
         _blogRepository = blogRepository;
@@ -27,11 +27,11 @@ public class BlogVoteService : IBlogVoteService
         _commentService = commentService;
     }
 
-    public async Task<List<BlogVoteDTO>> GetAll()
+    public async Task<List<BlogReactionDTO>> GetAll()
     {
         var blogVotes = await _blogVoteRepository.GetAll(null);
 
-        return blogVotes.Select(vote => new BlogVoteDTO
+        return blogVotes.Select(vote => new BlogReactionDTO
         {
             Id = vote.Id,
             BlogId = vote.BlogId,
@@ -40,19 +40,19 @@ public class BlogVoteService : IBlogVoteService
         }).ToList();
     }
 
-    public async Task<List<BlogVoteDTO>> GetBlogVotesByUserId(string userId)
+    public async Task<List<BlogReactionDTO>> GetBlogVotesByUserId(string userId)
     {
         var votes = await _blogVoteRepository.GetAll(null);
 
         var userBlogVote= votes.Where(vote => vote.UserId == userId).ToList();
 
-        var blogVoteDTOs = new List<BlogVoteDTO>();
+        var blogVoteDTOs = new List<BlogReactionDTO>();
 
         foreach (var blogvote in userBlogVote)
         {
             var user = await _userManager.FindByIdAsync(blogvote.UserId);
 
-            var blogVoteDTO = new BlogVoteDTO
+            var blogVoteDTO = new BlogReactionDTO
             {
                 Id = blogvote.Id,
                 BlogId = blogvote.BlogId,
@@ -67,7 +67,7 @@ public class BlogVoteService : IBlogVoteService
 
         return blogVoteDTOs.OrderByDescending(r => r.CreatedDate).ToList();
     }
-    public async Task<BlogVoteDTO> GetVote(int blogId, string userId)
+    public async Task<BlogReactionDTO> GetVote(int blogId, string userId)
     {
         // Fetch the vote from the repository by blog ID and user ID
         var blogVote = await _blogVoteRepository.GetVote(blogId, userId);
@@ -78,7 +78,7 @@ public class BlogVoteService : IBlogVoteService
         }
 
         // Convert the retrieved BlogVote to BlogVoteDTO
-        return new BlogVoteDTO
+        return new BlogReactionDTO
         {
             Id = blogVote.Id,
             BlogId = blogVote.BlogId,
@@ -115,7 +115,7 @@ public class BlogVoteService : IBlogVoteService
             else
             {
                 // New upvote
-                var newVote = new BlogVote
+                var newVote = new BlogReaction
                 {
                     BlogId = blogVoteDTO.BlogId,
                     UserId = blogVoteDTO.UserId,
@@ -166,7 +166,7 @@ public class BlogVoteService : IBlogVoteService
             else
             {
                 // New downvote
-                var newVote = new BlogVote
+                var newVote = new BlogReaction
                 {
                     BlogId = blogVoteDTO.BlogId,
                     UserId = blogVoteDTO.UserId,
@@ -191,11 +191,11 @@ public class BlogVoteService : IBlogVoteService
     }
 
 
-    public async Task<BlogVoteDTO> GetVoteById(int voteId)
+    public async Task<BlogReactionDTO> GetVoteById(int voteId)
     {
         var blogVote = await _blogVoteRepository.GetById(voteId);
 
-        return new BlogVoteDTO
+        return new BlogReactionDTO
         {
             Id = blogVote.Id,
             BlogId = blogVote.BlogId,
@@ -205,17 +205,17 @@ public class BlogVoteService : IBlogVoteService
         };
     }
 
-    public async Task<IEnumerable<BlogVoteDTO>> GetAllVotesForBlog(int blogId)
+    public async Task<IEnumerable<BlogReactionDTO>> GetAllVotesForBlog(int blogId)
     {
         var votes = await _blogVoteRepository.GetAll(null);
 
         var blogVotes = votes.Where(vote => vote.BlogId == blogId).ToList();
 
-        var blogVoteDTOs = new List<BlogVoteDTO>();
+        var blogVoteDTOs = new List<BlogReactionDTO>();
 
         foreach (var vote in blogVotes)
         {
-            var blogVoteDTO = new BlogVoteDTO
+            var blogVoteDTO = new BlogReactionDTO
             {
                 Id = vote.Id,
                 CreatedDate = vote.CreatedDate,

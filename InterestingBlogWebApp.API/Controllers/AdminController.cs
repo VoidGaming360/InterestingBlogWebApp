@@ -5,11 +5,11 @@ namespace BisleriumProject.Controllers
 {
     [ApiController]
     [Route("api/admin-dashboard")]
-    public class AdminDashboardController : ControllerBase
+    public class AdminController : ControllerBase
     {
-        private readonly IAdminDashboardService _adminDashboardService;
+        private readonly IAdminService _adminDashboardService;
 
-        public AdminDashboardController(IAdminDashboardService adminDashboardService)
+        public AdminController(IAdminService adminDashboardService)
         {
             _adminDashboardService = adminDashboardService;
         }

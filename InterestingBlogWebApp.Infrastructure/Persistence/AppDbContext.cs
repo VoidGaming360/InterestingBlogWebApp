@@ -20,10 +20,10 @@ namespace InterestingBlogWebApp.Infrastructure.Persistence
         public DbSet<User> Users { get; set; }
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Comment> Comments { get; set; }
-        public DbSet<BlogVote> BlogVotes { get; set; }
-        public DbSet<CommentVote> CommentVotes { get; set; }
-        public DbSet<BlogLogsheet> BlogLogsheets { get; set; }
-        public DbSet<CommentLogsheet> CommentLogsheets { get; set; }
+        public DbSet<BlogReaction> BlogVotes { get; set; }
+        public DbSet<CommentRecord> CommentVotes { get; set; }
+        public DbSet<BlogRecord> BlogLogsheets { get; set; }
+        public DbSet<CommentReaction> CommentLogsheets { get; set; }
         public DbSet<Notification> Notifications { get; set; }
     }
 

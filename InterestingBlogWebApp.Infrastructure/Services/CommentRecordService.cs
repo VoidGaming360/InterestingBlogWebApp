@@ -10,28 +10,28 @@ using InterestingBlogWebApp.Domain.Entities;
 
 namespace InterestingBlogWebApp.Infrastructure.Services
 {
-    public class CommentLogsheetService : ICommentLogsheetService
+    public class CommentRecordService : ICommentRecordService
     {
-        private readonly ICommentLogsheetRepository _commentLogsheetRepository;
+        private readonly ICommentRecordRepository _commentLogsheetRepository;
         private readonly UserManager<User> _userManager;
 
-        public CommentLogsheetService(ICommentLogsheetRepository commentLogsheetRepository, UserManager<User> userManager)
+        public CommentRecordService(ICommentRecordRepository commentLogsheetRepository, UserManager<User> userManager)
         {
             _commentLogsheetRepository = commentLogsheetRepository;
             _userManager = userManager;
         }
 
-        public async Task<List<CommentLogsheetDTO>> GetAll()
+        public async Task<List<CommentRecordDTO>> GetAll()
         {
             var commentLogsheets = await _commentLogsheetRepository.GetAll(null);
 
-            var commentLogsheetDTOs = new List<CommentLogsheetDTO>();
+            var commentLogsheetDTOs = new List<CommentRecordDTO>();
 
             foreach (var commentLog in commentLogsheets)
             {
                 var user = await _userManager.FindByIdAsync(commentLog.UserId);
 
-                var commentLogsheetDTO = new CommentLogsheetDTO
+                var commentLogsheetDTO = new CommentRecordDTO
                 {
                     Id = commentLog.Id,
                     Description = commentLog.Description,
@@ -47,7 +47,7 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             return commentLogsheetDTOs.OrderByDescending(c => c.UpdatedAt).ToList();
         }
 
-        public async Task<CommentLogsheetDTO> GetCommentLogsheetById(int commentLogsheetId)
+        public async Task<CommentRecordDTO> GetCommentLogsheetById(int commentLogsheetId)
         {
             var commentLog = await _commentLogsheetRepository.GetById(commentLogsheetId);
 
@@ -56,7 +56,7 @@ namespace InterestingBlogWebApp.Infrastructure.Services
                 throw new KeyNotFoundException("Comment logsheet not found.");
             }
 
-            return new CommentLogsheetDTO
+            return new CommentRecordDTO
             {
                 Id = commentLog.Id,
                 Description = commentLog.Description,
@@ -67,19 +67,19 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             };
         }
 
-        public async Task<List<CommentLogsheetDTO>> GetCommentsLogsByUserId(string userId)
+        public async Task<List<CommentRecordDTO>> GetCommentsLogsByUserId(string userId)
         {
             var commentLogsheets = await _commentLogsheetRepository.GetAll(null);
 
             var userCommentLogsheets = commentLogsheets.Where(c => c.UserId == userId).ToList();
 
-            var commentLogsheetDTOs = new List<CommentLogsheetDTO>();
+            var commentLogsheetDTOs = new List<CommentRecordDTO>();
 
             foreach (var commentLog in userCommentLogsheets)
             {
                 var user = await _userManager.FindByIdAsync(commentLog.UserId);
 
-                var commentLogsheetDTO = new CommentLogsheetDTO
+                var commentLogsheetDTO = new CommentRecordDTO
                 {
                     Id = commentLog.Id,
                     Description = commentLog.Description,
@@ -95,19 +95,19 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             return commentLogsheetDTOs.OrderByDescending(c => c.UpdatedAt).ToList();
         }
 
-        public async Task<List<CommentLogsheetDTO>> GetCommentLogsheetByBlog(int blogId)
+        public async Task<List<CommentRecordDTO>> GetCommentLogsheetByBlog(int blogId)
         {
             var commentLogsheets = await _commentLogsheetRepository.GetAll(null);
 
             var blogIdLogsheets = commentLogsheets.Where(c => c.BlogId == blogId).ToList();
 
-            var commentLogsheetDTOs = new List<CommentLogsheetDTO>();
+            var commentLogsheetDTOs = new List<CommentRecordDTO>();
 
             foreach (var commentLog in blogIdLogsheets)
             {
                 var user = await _userManager.FindByIdAsync(commentLog.UserId);
 
-                var commentLogsheetDTO = new CommentLogsheetDTO
+                var commentLogsheetDTO = new CommentRecordDTO
                 {
                     Id = commentLog.Id,
                     Description = commentLog.Description,
@@ -123,19 +123,19 @@ namespace InterestingBlogWebApp.Infrastructure.Services
             return commentLogsheetDTOs.OrderByDescending(c => c.UpdatedAt).ToList();
         }
 
-        public async Task<List<CommentLogsheetDTO>> GetCommentLogsheetByComment(int commentId)
+        public async Task<List<CommentRecordDTO>> GetCommentLogsheetByComment(int commentId)
         {
             var commentLogsheets = await _commentLogsheetRepository.GetAll(null);
 
             var commentIdLogsheets = commentLogsheets.Where(c => c.CommentId == commentId).ToList();
 
-            var commentLogsheetDTOs = new List<CommentLogsheetDTO>();
+            var commentLogsheetDTOs = new List<CommentRecordDTO>();
 
             foreach (var commentLog in commentIdLogsheets)
             {
                 var user = await _userManager.FindByIdAsync(commentLog.UserId);
 
-                var commentLogsheetDTO = new CommentLogsheetDTO
+                var commentLogsheetDTO = new CommentRecordDTO
                 {
                     Id = commentLog.Id,
                     Description = commentLog.Description,

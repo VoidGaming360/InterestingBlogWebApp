@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace InterestingBlogWebApp.Application.DTOs
 {
-    public class RegisterModel
+    public class RegisterDTO
     {
         [Required(ErrorMessage = "User Name is required")]
         public string Username { get; set; }

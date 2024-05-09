@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace InterestingBlogWebApp.Application.DTOs
 {
-    public class LoginModel
+    public class LoginDTO
     {
         [Required(ErrorMessage = "Email is required")]
         public string Email { get; set; }

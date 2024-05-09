@@ -45,10 +45,10 @@ public static class DependencyInjection
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IBlogRepository, BlogRepository>();
         services.AddTransient<ICommentRepository, CommentRepository>();
-        services.AddTransient<IBlogVoteRepository, BlogVoteRepository>();
-        services.AddTransient<IBlogLogsheetRepository, BlogLogsheetRepository>();
-        services.AddTransient<ICommentVoteRepository, CommentVoteRepository>();
-        services.AddTransient<ICommentLogsheetRepository, CommentLogsheetRepository>();
+        services.AddTransient<IBlogReactionRepository, BlogReactionRepository>();
+        services.AddTransient<IBlogRecordRepository, BlogRecordRepository>();
+        services.AddTransient<ICommentReactionRepository, CommentReactionRepository>();
+        services.AddTransient<ICommentRecordRepository, CommentRecordRepository>();
 
         //services.AddTransient<IAuthenticationService, AuthenticationService>();
 
@@ -58,11 +58,11 @@ public static class DependencyInjection
         services.AddTransient<IBlogService, BlogService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<ICommentService, CommentService>();
-        services.AddTransient<IBlogVoteService, BlogVoteService>();
-        services.AddTransient<IBlogLogsheetService, BlogLogsheetService>();
-        services.AddTransient<ICommentVoteService, CommentVoteService>();
-        services.AddTransient<ICommentLogsheetService, CommentLogsheetService>();
-        services.AddTransient<IAdminDashboardService, AdminDashboardService>();
+        services.AddTransient<IBlogReactionService, BlogReactionService>();
+        services.AddTransient<IBlogRecordService, BlogRecordService>();
+        services.AddTransient<ICommentReactionService, CommentReactionService>();
+        services.AddTransient<ICommentRecordService, CommentRecordService>();
+        services.AddTransient<IAdminService, AdminService>();
         services.AddTransient<INotificationService, NotificationService>();
 
         services.AddSingleton<EmailConfiguration>();

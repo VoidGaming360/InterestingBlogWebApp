@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace InterestingBlogWebApp.Domain.Entities
 {
-    public class BlogLogsheet
+    public class BlogRecord
     {
         [Key]
         public int Id { get; set; }

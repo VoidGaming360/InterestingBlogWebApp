@@ -9,10 +9,10 @@ public class CommentService : ICommentService
 {
     private readonly ICommentRepository _commentRepository;
     private readonly UserManager<User> _userManager;
-    private readonly ICommentLogsheetRepository _commentLogsheetRepository;
+    private readonly ICommentRecordRepository _commentLogsheetRepository;
 
 
-    public CommentService(ICommentRepository commentRepository, UserManager<User> userManager, ICommentLogsheetRepository commentLogsheetRepository)
+    public CommentService(ICommentRepository commentRepository, UserManager<User> userManager, ICommentRecordRepository commentLogsheetRepository)
     {
         _commentRepository = commentRepository;
         _userManager = userManager;
@@ -165,7 +165,7 @@ public class CommentService : ICommentService
         await _commentRepository.SaveChangesAsync(); // Commit changes
 
         // Create a new comment logsheet entry
-        var commentLogsheet = new CommentLogsheet
+        var commentLogsheet = new CommentReaction
         {
             Description = comment.Description,
             UpdatedAt = DateTime.UtcNow,

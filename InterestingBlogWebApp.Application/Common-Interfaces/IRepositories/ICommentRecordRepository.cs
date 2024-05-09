@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace InterestingBlogWebApp.Application.Common.Interface.IRepositories
 {
-    public interface ICommentLogsheetRepository : IRepositoryBase<CommentLogsheet>
+    public interface ICommentRecordRepository : IRepositoryBase<CommentReaction>
     {
     }
 }

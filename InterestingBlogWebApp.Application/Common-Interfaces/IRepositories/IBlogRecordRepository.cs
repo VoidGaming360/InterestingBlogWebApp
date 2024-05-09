@@ -2,7 +2,7 @@
 
 namespace InterestingBlogWebApp.Application.Common.Interface.IRepositories
 {
-    public interface IBlogLogsheetRepository : IRepositoryBase<BlogLogsheet>
+    public interface IBlogRecordRepository : IRepositoryBase<BlogRecord>
     {
     }
 }

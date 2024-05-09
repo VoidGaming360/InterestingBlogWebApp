@@ -14,14 +14,14 @@ namespace InterestingBlogWebApp.Controllers
     [ApiController]
     public class CommentReactionController : ControllerBase
     {
-        private readonly ICommentVoteService _commentVoteService;
+        private readonly ICommentReactionService _commentVoteService;
         private readonly IHubContext<NotificationHub> _notificationHub;
         private readonly ICommentService _commentService; // To get comment details, assuming this exists
         private readonly INotificationService _notificationService;
         private readonly IUserService _userService;
 
 
-        public CommentReactionController(ICommentVoteService commentVoteService,
+        public CommentReactionController(ICommentReactionService commentVoteService,
                         IHubContext<NotificationHub> notificationHub,
                         ICommentService commentService, // Ensure this service can fetch comment details
                         INotificationService notificationService,
