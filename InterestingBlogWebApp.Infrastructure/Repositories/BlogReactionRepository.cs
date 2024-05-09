@@ -5,22 +5,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InterestingBlogWebApp.Infrastructures.Repositories
 {
-    public class BlogVoteRepository : RepositoryBase<BlogVote>, IBlogVoteRepository
+    public class BlogReactionRepository : RepositoryBase<BlogReaction>, IBlogReactionRepository
     {
         private readonly AppDbContext _appDbContext;
 
-        public BlogVoteRepository(AppDbContext appDbContext) : base(appDbContext)
+        public BlogReactionRepository(AppDbContext appDbContext) : base(appDbContext)
         {
             _appDbContext = appDbContext;
         }
 
-        public async Task<BlogVote>? GetVote(int blogId, string userId)
+        public async Task<BlogReaction>? GetVote(int blogId, string userId)
         {
             return await _appDbContext.BlogVotes
                     .Where(v => v.BlogId == blogId && v.UserId == userId)
                     .SingleOrDefaultAsync();
         }
-        public async Task<IEnumerable<BlogVote>> GetAllVotesForBlog(int blogId)
+        public async Task<IEnumerable<BlogReaction>> GetAllVotesForBlog(int blogId)
         {
             // Ensure this method returns all votes for the specified blog ID
             return await _appDbContext.BlogVotes
@@ -28,9 +28,9 @@ namespace InterestingBlogWebApp.Infrastructures.Repositories
                 .ToListAsync(); // Return as a collection
         }
 
-        public async Task<BlogVote>? GetAllVotesByUserId(string userId)
+        public async Task<BlogReaction>? GetAllVotesByUserId(string userId)
         {
-            return await _appDbContext.FindAsync<BlogVote>(userId);
+            return await _appDbContext.FindAsync<BlogReaction>(userId);
         }
     }
 }

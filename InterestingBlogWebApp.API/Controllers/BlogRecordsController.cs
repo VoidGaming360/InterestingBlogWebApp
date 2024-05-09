@@ -9,9 +9,9 @@ namespace InterestingBlogWebApp.Controllers
     [ApiController]
     public class BlogRecordsController : ControllerBase
     {
-        private readonly IBlogLogsheetService _blogLogsheetService;
+        private readonly IBlogRecordService _blogLogsheetService;
 
-        public BlogRecordsController(IBlogLogsheetService blogLogsheetService)
+        public BlogRecordsController(IBlogRecordService blogLogsheetService)
         {
             _blogLogsheetService = blogLogsheetService;
         }

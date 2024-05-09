@@ -18,10 +18,10 @@ namespace InterestingBlogWebApp.Infrastructure.Services
         private CloudinarySettings _cloudinarySettings;
         private Account _account;
         private readonly IBlogRepository _blogRepository;
-        private readonly IBlogLogsheetRepository _blogLogsheetRepository;
+        private readonly IBlogRecordRepository _blogLogsheetRepository;
         private readonly UserManager<User> _userManager;
 
-        public BlogService(IBlogRepository blogsRepository, UserManager<User> userManager, IOptions<CloudinarySettings> cloudinarySettingsOptions, IBlogLogsheetRepository blogLogsheetRepository)
+        public BlogService(IBlogRepository blogsRepository, UserManager<User> userManager, IOptions<CloudinarySettings> cloudinarySettingsOptions, IBlogRecordRepository blogLogsheetRepository)
         {
             _cloudinarySettings = cloudinarySettingsOptions.Value;
             _account = new Account(
@@ -282,7 +282,7 @@ namespace InterestingBlogWebApp.Infrastructure.Services
 
 
                 // Create a new logsheet entry with the updated details
-                var blogLogsheetDTO = new BlogLogsheet
+                var blogLogsheetDTO = new BlogRecord
                 {
                     Title = existingBlog.Title, // Use the updated title
                     Description = existingBlog.Description, // Use the updated description

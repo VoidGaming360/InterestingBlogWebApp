@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InterestingBlogWebApp.Domain.Entities
 {
-    public class CommentLogsheet
+    public class CommentRecord
     {
         [Key]
         public int Id { get; set; }

@@ -17,12 +17,12 @@ namespace InterestingBlogWebApp.Controllers
     [ApiController]
     public class BlogReactionController : ControllerBase
     {
-        private readonly IBlogVoteService _blogVoteService;
+        private readonly IBlogReactionService _blogVoteService;
         private readonly IHubContext<NotificationHub> _notificationHub;
         private readonly IBlogService _blogService;
         private readonly INotificationService _notificationService;
 
-        public BlogReactionController(IBlogVoteService blogVoteService, IHubContext<NotificationHub> notificationHub,
+        public BlogReactionController(IBlogReactionService blogVoteService, IHubContext<NotificationHub> notificationHub,
             IBlogService blogService, INotificationService notificationService)
         {
             _blogVoteService = blogVoteService;

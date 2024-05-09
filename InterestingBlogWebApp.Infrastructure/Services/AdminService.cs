@@ -9,14 +9,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BisleriumProject.Infrastructures.Services
 {
-    public class AdminDashboardService : IAdminDashboardService
+    public class AdminService : IAdminDashboardService
     {
         private readonly IBlogRepository _blogRepository;
         private readonly ICommentRepository _commentRepository;
         private readonly IUserRepository _userRepository;
         private readonly UserManager<User> _userManager;
 
-        public AdminDashboardService(
+        public AdminService(
             IBlogRepository blogRepository,
             ICommentRepository commentRepository,
             IUserRepository userRepository,

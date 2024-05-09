@@ -5,31 +5,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InterestingBlogWebApp.Infrastructures.Repositories
 {
-    public class CommentVoteRepository : RepositoryBase<CommentVote>, ICommentVoteRepository
+    public class CommentReactionRepository : RepositoryBase<CommentReaction>, ICommentReactionRepository
     {
         private readonly AppDbContext _appDbContext;
 
-        public CommentVoteRepository(AppDbContext appDbContext) : base(appDbContext)
+        public CommentReactionRepository(AppDbContext appDbContext) : base(appDbContext)
         {
             _appDbContext = appDbContext;
         }
 
-        public async Task<CommentVote>? GetVote(int commentId, string userId)
+        public async Task<CommentReaction>? GetVote(int commentId, string userId)
         {
             return await _appDbContext.CommentVotes
                     .Where(v => v.CommentId == commentId && v.UserId == userId)
                     .SingleOrDefaultAsync();
         }
-        public async Task<IEnumerable<CommentVote>> GetAllVotesForComment(int commentId)
+        public async Task<IEnumerable<CommentReaction>> GetAllVotesForComment(int commentId)
         {
             return await _appDbContext.CommentVotes
                 .Where(v => v.CommentId == commentId) 
                 .ToListAsync(); 
         }
 
-        public async Task<CommentVote>? GetAllVotesByUserId(string userId)
+        public async Task<CommentReaction>? GetAllVotesByUserId(string userId)
         {
-            return await _appDbContext.FindAsync<CommentVote>(userId);
+            return await _appDbContext.FindAsync<CommentReaction>(userId);
         }
     }
 }

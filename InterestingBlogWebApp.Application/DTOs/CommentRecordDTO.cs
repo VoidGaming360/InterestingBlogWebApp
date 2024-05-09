@@ -1,6 +1,6 @@
 ﻿namespace InterestingBlogWebApp.Application.DTOs
 {
-    public class CommentLogsheetDTO
+    public class CommentRecordDTO
     {
         public int Id { get; set; } 
         public string Description { get; set; }

@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace InterestingBlogWebApp.Infrastructures.Repositories
 {
-    public class CommentLogsheetRepository : RepositoryBase<CommentLogsheet>, ICommentLogsheetRepository
+    public class BlogRecordRepository : RepositoryBase<BlogRecord>, IBlogRecordRepository
     {
         private readonly AppDbContext _appDbContext;
 
-        public CommentLogsheetRepository(AppDbContext appDbContext) : base(appDbContext)
+        public BlogRecordRepository(AppDbContext appDbContext) : base(appDbContext)
         {
             _appDbContext = appDbContext;
         }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace InterestingBlogWebApp.Application.DTOs
 {
-    public class BlogLogsheetDTO
+    public class BlogRecordDTO
     {
         public int Id { get; set; }
         public string Title { get; set; }

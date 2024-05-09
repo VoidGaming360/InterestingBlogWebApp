@@ -13,9 +13,9 @@ namespace InterestingBlogWebApp.Controllers
     [ApiController]
     public class CommentRecordsController : ControllerBase
     {
-        private readonly ICommentLogsheetService _commentLogsheetService;
+        private readonly ICommentRecordService _commentLogsheetService;
 
-        public CommentRecordsController(ICommentLogsheetService commentLogsheetService)
+        public CommentRecordsController(ICommentRecordService commentLogsheetService)
         {
             _commentLogsheetService = commentLogsheetService;
         }
