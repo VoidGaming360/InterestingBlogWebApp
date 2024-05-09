@@ -86,7 +86,7 @@ namespace InterestingBlogWebApp.Controllers
             var userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new Response(null, new List<string> { "User already exists." }, HttpStatusCode.InternalServerError));
+                return StatusCode((int)HttpStatusCode.BadRequest, new Response(null, new List<string> { "User already exists." }, HttpStatusCode.BadRequest));
             }
 
 
@@ -100,7 +100,7 @@ namespace InterestingBlogWebApp.Controllers
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new Response(null, new List<string> { "User creation failed. Please check the details and try again." }, HttpStatusCode.InternalServerError));
+                return StatusCode((int)HttpStatusCode.BadRequest, new Response(null, new List<string> { "User creation failed. Please check the details and try again." }, HttpStatusCode.BadRequest));
             }
 
             // Ensure the admin role exists, create if necessary
@@ -123,7 +123,7 @@ namespace InterestingBlogWebApp.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("register-admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
@@ -131,7 +131,7 @@ namespace InterestingBlogWebApp.Controllers
             var userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new Response(null, new List<string> { "User already exists." }, HttpStatusCode.InternalServerError));
+                return StatusCode((int)HttpStatusCode.BadRequest, new Response(null, new List<string> { "User already exists." }, HttpStatusCode.BadRequest));
             }
 
             var user = new User
@@ -144,7 +144,7 @@ namespace InterestingBlogWebApp.Controllers
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new Response(null, new List<string> { "User creation failed. Please check the details and try again." }, HttpStatusCode.InternalServerError));
+                return StatusCode((int)HttpStatusCode.BadRequest, new Response(null, new List<string> { "User creation failed. Please check the details and try again." }, HttpStatusCode.BadRequest));
             }
 
             if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
