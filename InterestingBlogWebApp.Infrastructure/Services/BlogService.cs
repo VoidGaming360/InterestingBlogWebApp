@@ -263,6 +263,7 @@ namespace InterestingBlogWebApp.Infrastructure.Services
                 existingBlog.UpVoteCount = existingBlog.UpVoteCount;
                 existingBlog.DownVoteCount = existingBlog.DownVoteCount;
                 existingBlog.IsEdited = true; // Mark as edited for tracking
+                existingBlog.CreatedDate = DateTime.UtcNow;
 
                 // Initialize imagelogId with a default value
                 Guid imagelogId = existingBlog.Image;

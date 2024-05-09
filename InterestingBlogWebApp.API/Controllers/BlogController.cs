@@ -33,12 +33,15 @@ namespace InterestingBlogWebApp.Controllers
             try
             {
                 var blogs = await _blogService.GetAll();
+                var userId = User.FindFirst("userId")?.Value;
+
 
                 // Fetch user name for each blog
                 foreach (var blog in blogs)
                 {
                     var userName = await _blogService.GetUserNameById(blog.UserId);
                     blog.UserName = userName;
+                    blog.IsMine = blog.UserId == userId;
                 }
 
                 return Ok(blogs);
@@ -53,11 +56,13 @@ namespace InterestingBlogWebApp.Controllers
         public async Task<IActionResult> GetAllSorted(string sortBy = "random", int pageNumber = 1, int pageSize = 10)
         {
             var (blogs, totalPages, totalCount) = await _blogService.GetAllSorted(sortBy, pageNumber, pageSize);
+            var userId = User.FindFirst("userId")?.Value;
 
             foreach (var blog in blogs)
             {
                 var userName = await _blogService.GetUserNameById(blog.UserId);
                 blog.UserName = userName;
+                blog.IsMine = blog.UserId == userId;
             }
 
             var response = new
@@ -78,9 +83,11 @@ namespace InterestingBlogWebApp.Controllers
             try
             {
                 var blogDTO = await _blogService.GetBlogById(blogId); // Call the service method
+                var userId = User.FindFirst("userId")?.Value;
 
                 // Fetch user name for the blog
                 var userName = await _blogService.GetUserNameById(blogDTO.UserId);
+                blogDTO.IsMine = blogDTO.UserId == userId;
                 blogDTO.UserName = userName;
 
                 return Ok(blogDTO); // Return the blog DTO
@@ -110,6 +117,7 @@ namespace InterestingBlogWebApp.Controllers
                 {
                     var userName = await _blogService.GetUserNameById(blog.UserId);
                     blog.UserName = userName;
+                    blog.IsMine = blog.UserId == userId;
                 }
 
                 return Ok(blogDTOs);
@@ -170,7 +178,6 @@ namespace InterestingBlogWebApp.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.Message });
             }
         }
-
 
 
         [Authorize]

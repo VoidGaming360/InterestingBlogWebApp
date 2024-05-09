@@ -35,8 +35,8 @@ public class BlogVoteService : IBlogVoteService
         {
             Id = vote.Id,
             BlogId = vote.BlogId,
-            IsUpVote = vote.IsUpVote,
-            IsDownVote = vote.IsDownVote
+            IsUpVote = vote.IsUpVote ?? false,
+            IsDownVote = vote.IsDownVote ?? false
         }).ToList();
     }
 
@@ -57,8 +57,8 @@ public class BlogVoteService : IBlogVoteService
                 Id = blogvote.Id,
                 BlogId = blogvote.BlogId,
                 UserId = blogvote.UserId,
-                IsUpVote = blogvote.IsUpVote,
-                IsDownVote = blogvote.IsDownVote
+                IsUpVote = blogvote.IsUpVote ?? false,
+                IsDownVote = blogvote.IsDownVote ?? false
 
             };
 
@@ -83,8 +83,8 @@ public class BlogVoteService : IBlogVoteService
             Id = blogVote.Id,
             BlogId = blogVote.BlogId,
             UserId = blogVote.UserId,
-            IsUpVote = blogVote.IsUpVote,
-            IsDownVote = blogVote.IsDownVote
+            IsUpVote = blogVote.IsUpVote ?? false,
+            IsDownVote = blogVote.IsDownVote ?? false
         };
     }
 
@@ -200,8 +200,8 @@ public class BlogVoteService : IBlogVoteService
             Id = blogVote.Id,
             BlogId = blogVote.BlogId,
             UserId = blogVote.UserId,
-            IsUpVote = blogVote.IsUpVote,
-            IsDownVote = blogVote.IsDownVote
+            IsUpVote = blogVote.IsUpVote ?? false,
+            IsDownVote = blogVote.IsDownVote ?? false
         };
     }
 
@@ -221,8 +221,8 @@ public class BlogVoteService : IBlogVoteService
                 CreatedDate = vote.CreatedDate,
                 BlogId = vote.BlogId,
                 UserId = vote.UserId,
-                IsUpVote = vote.IsUpVote,
-                IsDownVote = vote.IsDownVote
+                IsUpVote = vote.IsUpVote ?? false,
+                IsDownVote = vote.IsDownVote ?? false
             };
 
             blogVoteDTOs.Add(blogVoteDTO);
