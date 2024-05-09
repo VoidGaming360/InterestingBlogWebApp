@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System.Net;
+using System.Reflection.Metadata;
 
 namespace InterestingBlogWebApp.Controllers
 {
@@ -52,6 +53,13 @@ namespace InterestingBlogWebApp.Controllers
         public async Task<IActionResult> GetAllSorted(string sortBy = "random", int pageNumber = 1, int pageSize = 10)
         {
             var (blogs, totalPages, totalCount) = await _blogService.GetAllSorted(sortBy, pageNumber, pageSize);
+
+            foreach (var blog in blogs)
+            {
+                var userName = await _blogService.GetUserNameById(blog.UserId);
+                blog.UserName = userName;
+            }
+
             var response = new
             {
                 Blogs = blogs,

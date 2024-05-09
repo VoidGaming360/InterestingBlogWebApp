@@ -10,6 +10,7 @@ using InterestingBlogWebApp.Application.Common.Interface.IRepositories;
 using InterestingBlogWebApp.Infrastructures.Repositories;
 using InterestingBlogWebApp.Domain.Auth;
 using InterestingBlogWebApp.Application.Common_Interfaces.IServices;
+using BisleriumProject.Infrastructures.Services;
 
 public static class DependencyInjection
 {
