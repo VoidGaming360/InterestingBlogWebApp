@@ -14,7 +14,6 @@ namespace InterestingBlogWebApp.Infrastructure.Persistence
 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Blogs> Blog {  get; set; }
-
         public DbSet<BlogReaction> BlogReactions { get; set; }
         public DbSet<Comment>   Comments { get; set; }
         public DbSet<CommentReaction> CommentReactions { get; set; }
