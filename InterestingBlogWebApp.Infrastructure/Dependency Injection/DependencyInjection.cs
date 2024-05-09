@@ -11,11 +11,17 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
+using InterestingBlogWebApp.Application.Common_Interfaces;
+using InterestingBlogWebApp.Infrastructure.Repositories;
+using CloudinaryDotNet;
 
 public static class DependencyInjection
 {
     public static void AddCustomServices(this IServiceCollection services, IConfiguration configuration)
     {
+        string imageFolderPath = configuration["ImageFolderPath"];
+
+
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
@@ -29,10 +35,28 @@ public static class DependencyInjection
             options.OperationFilter<SecurityRequirementsOperationFilter>();
         });
 
+        services.AddSingleton<Cloudinary>(provider =>
+        {
+            // Configure and create Cloudinary instance here
+            var account = new Account("cloud_name", "api_key", "api_secret");
+            return new Cloudinary(account);
+        });
+
+        services.AddHttpContextAccessor();
         // Register application services
         services.AddScoped<IDbInitializer, DbInitializer>();
         services.AddTransient<IUnitOfWork, UnitOfWork>();
-        services.AddTransient<IBlog, BlogService>();
+        services.AddTransient<IBlogRepository, BlogRepository>();
+        services.AddTransient<IBlog, BlogService>(provider =>
+        {
+            var cloudinary = provider.GetRequiredService<Cloudinary>(); // Retrieve Cloudinary instance
+            var userManager = provider.GetRequiredService<UserManager<ApplicationUser>>(); // Retrieve UserManager instance
+            var blogRepository = provider.GetRequiredService<IBlogRepository>(); // Retrieve IBlogRepository instance
+
+            // Instantiate BlogService with required parameters
+            return new BlogService(userManager, blogRepository, cloudinary, imageFolderPath);
+        });
+        services.AddScoped<IUserAccessor, HttpContextUserAccessor>();
 
         // Register Identity services
         services.AddScoped<UserManager<ApplicationUser>>();
@@ -43,23 +67,19 @@ public static class DependencyInjection
             .AddSignInManager()
             .AddRoles<IdentityRole>();
 
-        services.AddAuthentication(options=> {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(options =>
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
         {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-
-                ValidateIssuerSigningKey = true,
-                ValidateLifetime = true,
-                ValidIssuer = configuration["Jwt:Issuer"],
-                ValidAudience = configuration["Jwt:Audience"],
-                IssuerSigningKey = new
-            SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!))
-            };
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = configuration["Jwt:Issuer"],
+            ValidAudience = configuration["Jwt:Issuer"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+        };
         });
 
 

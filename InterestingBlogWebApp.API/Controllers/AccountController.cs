@@ -16,17 +16,20 @@ namespace InterestingBlogWebApp.API.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ILogger<AccountController> _logger;
         public record LoginResponse(bool Flag, string Token, string Message);
         public record UserSession(string? Id, string? Name, string? Email, string? Role);
         public AccountController(UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager, IConfiguration configuration,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        ILogger<AccountController> logger)
         {
 
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
             _signInManager = signInManager;
+            _logger = logger;
         }
         [HttpPost("Register-Blogger")]
         public async Task<IActionResult> RegisterBlogger(RegisterDTO model)
@@ -113,12 +116,18 @@ namespace InterestingBlogWebApp.API.Controllers
         [HttpPost("Login")]
         public async Task<LoginResponse> Login([FromBody] LoginModel loginUser)
         {
+            // Log the email address being passed to FindByEmailAsync
+            _logger.LogInformation($"Login attempt for email: {loginUser.Email}");
 
             var result = await _signInManager.PasswordSignInAsync(loginUser.Email,
             loginUser.Password, false, lockoutOnFailure: false);
             if (result.Succeeded)
             {
                 var getUser = await _userManager.FindByEmailAsync(loginUser.Email);
+
+                // Log the user information retrieved
+                _logger.LogInformation($"User found: {getUser}");
+
                 var getUserRole = await _userManager.GetRolesAsync(getUser);
                 var userSession = new UserSession(getUser.Id, getUser.UserName,
                 getUser.Email, getUserRole.First());
