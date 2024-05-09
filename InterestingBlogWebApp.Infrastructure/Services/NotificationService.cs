@@ -3,6 +3,7 @@ using InterestingBlogWebApp.Application.DTOs;
 using InterestingBlogWebApp.Domain.Entities;
 using InterestingBlogWebApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 
 namespace InterestingBlogWebApp.Infrastructure.Services
@@ -10,24 +11,35 @@ namespace InterestingBlogWebApp.Infrastructure.Services
     public class NotificationService : INotificationService
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<NotificationService> _logger;
 
-        public NotificationService(AppDbContext context)
+        public NotificationService(AppDbContext context, ILogger<NotificationService> logger)
         {
             _context = context;
+            _logger = logger;
         }
         public async Task SaveNotificationAsync(NotificationDTO notificationDto)
         {
-            var notification = new Notification
+            try
             {
-                SenderId = notificationDto.SenderId,
-                ReceiverId = notificationDto.ReceiverId,
-                Message = notificationDto.Message,
-                Timestamp = DateTime.UtcNow,
-                IsRead = false
-            };
+                var notification = new Notification
+                {
+                    SenderId = notificationDto.SenderId,
+                    ReceiverId = notificationDto.ReceiverId,
+                    Message = notificationDto.Message,
+                    Timestamp = DateTime.UtcNow,
+                    IsRead = false
+                };
 
-            _context.Notifications.Add(notification);
-            await _context.SaveChangesAsync();
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception to understand what went wrong
+                _logger.LogError("Error saving notification: {Message}", ex.Message);
+                throw; // Or handle accordingly
+            }
         }
         public async Task<NotificationDTO> SaveNotificationDTOAsync(NotificationDTO notificationDto)
         {
