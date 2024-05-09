@@ -21,7 +21,6 @@ public static class DependencyInjection
     {
         string imageFolderPath = configuration["ImageFolderPath"];
 
-
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
@@ -37,30 +36,22 @@ public static class DependencyInjection
 
         services.AddSingleton<Cloudinary>(provider =>
         {
-            // Configure and create Cloudinary instance here
-            var account = new Account("cloud_name", "api_key", "api_secret");
+            var account = new Account("cloud_name", "api_key", "api_secret"); // Update with actual Cloudinary credentials
             return new Cloudinary(account);
         });
 
         services.AddHttpContextAccessor();
-        // Register application services
         services.AddScoped<IDbInitializer, DbInitializer>();
         services.AddTransient<IUnitOfWork, UnitOfWork>();
         services.AddTransient<IBlogRepository, BlogRepository>();
         services.AddTransient<IBlog, BlogService>(provider =>
         {
-            var cloudinary = provider.GetRequiredService<Cloudinary>(); // Retrieve Cloudinary instance
-            var userManager = provider.GetRequiredService<UserManager<ApplicationUser>>(); // Retrieve UserManager instance
-            var blogRepository = provider.GetRequiredService<IBlogRepository>(); // Retrieve IBlogRepository instance
-
-            // Instantiate BlogService with required parameters
+            var cloudinary = provider.GetRequiredService<Cloudinary>();
+            var userManager = provider.GetRequiredService<UserManager<ApplicationUser>>();
+            var blogRepository = provider.GetRequiredService<IBlogRepository>();
             return new BlogService(userManager, blogRepository, cloudinary, imageFolderPath);
         });
         services.AddScoped<IUserAccessor, HttpContextUserAccessor>();
-
-        // Register Identity services
-        services.AddScoped<UserManager<ApplicationUser>>();
-        services.AddScoped<SignInManager<ApplicationUser>>();
 
         services.AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -68,29 +59,25 @@ public static class DependencyInjection
             .AddRoles<IdentityRole>();
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = configuration["Jwt:Issuer"],
-            ValidAudience = configuration["Jwt:Issuer"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
-        };
-        });
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    ValidAudience = configuration["Jwt:Issuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+                };
+            });
 
+        services.AddAuthorization();
 
-
-        services.AddAuthorizationBuilder();
-
-        // Configure the database context
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(services.BuildServiceProvider().GetRequiredService<IConfiguration>().GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-        // Set default thread culture for localization
         System.Globalization.CultureInfo.DefaultThreadCurrentCulture = new System.Globalization.CultureInfo("en-US");
     }
 }

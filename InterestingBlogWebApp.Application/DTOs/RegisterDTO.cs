@@ -13,11 +13,10 @@ namespace InterestingBlogWebApp.Application.DTOs
         public string? LastName { get; set; }
 
         [Required]
-        public new string? UserName {  get; set; }
+        public string? UserName {  get; set; }
 
         [Required]
         [EmailAddress]
-        
         public string? Email { get; set; }
         [Required]
         [DataType(DataType.Password)]

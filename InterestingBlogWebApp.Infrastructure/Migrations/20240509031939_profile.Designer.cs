@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InterestingBlogWebApp.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240502074939_initialmigrate")]
-    partial class initialmigrate
+    [Migration("20240509031939_profile")]
+    partial class profile
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,39 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("InterestingBlogWebApp.Domain.Entities.BlogReaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("BlogsId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("BlogsId");
+
+                    b.ToTable("BlogReactions");
+                });
 
             modelBuilder.Entity("InterestingBlogWebApp.Domain.Entities.Blogs", b =>
                 {
@@ -36,22 +69,27 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
                     b.Property<string>("ApplicationUserId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Downvotes")
+                    b.Property<int?>("DownVoteCount")
                         .HasColumnType("int");
 
-                    b.Property<string>("ImageURI")
+                    b.Property<Guid>("Image")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Upvotes")
+                    b.Property<int?>("UpVoteCount")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -82,9 +120,8 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -95,7 +132,7 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("InterestingBlogWebApp.Domain.Entities.Reaction", b =>
+            modelBuilder.Entity("InterestingBlogWebApp.Domain.Entities.CommentReaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -105,9 +142,6 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
 
                     b.Property<string>("ApplicationUserId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("BlogId")
-                        .HasColumnType("int");
 
                     b.Property<int?>("BlogsId")
                         .HasColumnType("int");
@@ -127,7 +161,7 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
 
                     b.HasIndex("CommentId");
 
-                    b.ToTable("Reactions");
+                    b.ToTable("CommentReactions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -341,29 +375,30 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<string>("Address")
+                    b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("DOB")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Gender")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nationality")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PictureUri")
+                    b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
+                });
+
+            modelBuilder.Entity("InterestingBlogWebApp.Domain.Entities.BlogReaction", b =>
+                {
+                    b.HasOne("InterestingBlogWebApp.Domain.Entities.ApplicationUser", "ApplicationUser")
+                        .WithMany("BlogReactions")
+                        .HasForeignKey("ApplicationUserId");
+
+                    b.HasOne("InterestingBlogWebApp.Domain.Entities.Blogs", "Blogs")
+                        .WithMany("BlogReactions")
+                        .HasForeignKey("BlogsId");
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Blogs");
                 });
 
             modelBuilder.Entity("InterestingBlogWebApp.Domain.Entities.Blogs", b =>
@@ -390,14 +425,14 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
                     b.Navigation("Blogs");
                 });
 
-            modelBuilder.Entity("InterestingBlogWebApp.Domain.Entities.Reaction", b =>
+            modelBuilder.Entity("InterestingBlogWebApp.Domain.Entities.CommentReaction", b =>
                 {
                     b.HasOne("InterestingBlogWebApp.Domain.Entities.ApplicationUser", "ApplicationUser")
-                        .WithMany("Reactions")
+                        .WithMany("CommentReactions")
                         .HasForeignKey("ApplicationUserId");
 
-                    b.HasOne("InterestingBlogWebApp.Domain.Entities.Blogs", "Blogs")
-                        .WithMany()
+                    b.HasOne("InterestingBlogWebApp.Domain.Entities.Blogs", null)
+                        .WithMany("CommentReactions")
                         .HasForeignKey("BlogsId");
 
                     b.HasOne("InterestingBlogWebApp.Domain.Entities.Comment", "Comment")
@@ -405,8 +440,6 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
                         .HasForeignKey("CommentId");
 
                     b.Navigation("ApplicationUser");
-
-                    b.Navigation("Blogs");
 
                     b.Navigation("Comment");
                 });
@@ -464,16 +497,22 @@ namespace InterestingBlogWebApp.Infrastructure.Migrations
 
             modelBuilder.Entity("InterestingBlogWebApp.Domain.Entities.Blogs", b =>
                 {
+                    b.Navigation("BlogReactions");
+
+                    b.Navigation("CommentReactions");
+
                     b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("InterestingBlogWebApp.Domain.Entities.ApplicationUser", b =>
                 {
+                    b.Navigation("BlogReactions");
+
                     b.Navigation("Blogs");
 
-                    b.Navigation("Comments");
+                    b.Navigation("CommentReactions");
 
-                    b.Navigation("Reactions");
+                    b.Navigation("Comments");
                 });
 #pragma warning restore 612, 618
         }

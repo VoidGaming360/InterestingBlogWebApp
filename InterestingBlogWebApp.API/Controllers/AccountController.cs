@@ -41,8 +41,8 @@ namespace InterestingBlogWebApp.API.Controllers
 
             var user = new ApplicationUser
             {
-                UserName = model.UserName,
                 Email = model.Email,
+                UserName = model.UserName,
                 FirstName = model.FirstName,
                 LastName = model.LastName
             };
