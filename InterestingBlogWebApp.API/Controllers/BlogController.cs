@@ -2,6 +2,7 @@
 using InterestingBlogWebApp.Application.DTOs;
 using InterestingBlogWebApp.Application.Helpers;
 using InterestingBlogWebApp.Domain.Entities;
+using InterestingBlogWebApp.Domain.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;

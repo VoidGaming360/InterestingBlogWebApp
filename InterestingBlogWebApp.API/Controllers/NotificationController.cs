@@ -1,5 +1,6 @@
 ﻿using InterestingBlogWebApp.Application.Common_Interfaces.IServices;
 using InterestingBlogWebApp.Application.DTOs;
+using InterestingBlogWebApp.Domain.Shared;
 using InterestingBlogWebApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;

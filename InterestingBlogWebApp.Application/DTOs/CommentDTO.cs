@@ -29,7 +29,6 @@ namespace InterestingBlogWebApp.Application.DTOs
 
         [Required(ErrorMessage = "Blog ID is required")]
         public int BlogId { get; set; }
-
         public string? UserId { get; set; }
     }
 

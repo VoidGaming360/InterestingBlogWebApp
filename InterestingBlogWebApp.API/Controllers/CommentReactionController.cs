@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using InterestingBlogWebApp.Application.Common.Interface.IServices;
 using InterestingBlogWebApp.Application.DTOs;
 using InterestingBlogWebApp.Application.Common_Interfaces.IServices;
 using Microsoft.AspNetCore.SignalR;
+using InterestingBlogWebApp.Domain.Shared;
+using InterestingBlogWebApp.Domain.Entities;
+using InterestingBlogWebApp.Domain.Payloads;
+using InterestingBlogWebApp.Domain.Enums;
+using InterestingBlogWebApp.Infrastructure.Services;
 
 namespace InterestingBlogWebApp.Controllers
 {
@@ -19,19 +21,22 @@ namespace InterestingBlogWebApp.Controllers
         private readonly ICommentService _commentService; // To get comment details, assuming this exists
         private readonly INotificationService _notificationService;
         private readonly IUserService _userService;
+        private readonly IBlogService _blogService;
 
 
         public CommentReactionController(ICommentReactionService commentVoteService,
                         IHubContext<NotificationHub> notificationHub,
                         ICommentService commentService, // Ensure this service can fetch comment details
                         INotificationService notificationService,
-                        IUserService userService)
+                        IUserService userService,
+                        IBlogService blogService)
         {
             _commentVoteService = commentVoteService;
             _notificationHub = notificationHub;
             _commentService = commentService;
             _notificationService = notificationService;
             _userService = userService;
+            _blogService = blogService;
         }
 
         [HttpGet("get-all")]
@@ -84,22 +89,40 @@ namespace InterestingBlogWebApp.Controllers
             }
 
             var authorId = comment.UserId;
-            var upvoterName = await _userService.GetUserNameById(userId); // Correct service used here
+            var upvoterName = await _userService.GetUserNameById(userId);
 
             if (userId != authorId)
             {
-                var notificationMessage = $"{upvoterName} upvoted your comment.";
-                await _notificationHub.Clients.User(authorId).SendAsync("ReceiveNotification", notificationMessage);
+                var blog = await _blogService.GetBlogById(comment.BlogId); // Fetch the blog using the BlogId from the comment
+                if (blog == null)
+                {
+                    return NotFound(new { message = "Blog not found." });
+                }
+
+                var payload = new CommentRelatedPayload
+                {
+                    Username = upvoterName,
+                    BlogTitle = blog.Title, // Use the blog title fetched from the blog
+                    CommentContent = comment.Description // Assuming the CommentDTO has a Content property
+                };
+
+                await _notificationHub.Clients.User(authorId).SendAsync(
+                    "ReceiveNotification",
+                    new Notification<CommentRelatedPayload>
+                    {
+                        NotificationType = NotificationType.COMMENT_LIKE,
+                        Payload = payload
+                    }
+                );
 
                 var notificationDto = new NotificationDTO
                 {
                     SenderId = userId,
                     ReceiverId = authorId,
-                    Message = notificationMessage,
+                    Message = $"{upvoterName} upvoted your comment.",
                     IsRead = false,
                     Timestamp = DateTime.UtcNow
                 };
-
                 await _notificationService.SaveNotificationAsync(notificationDto);
             }
 

@@ -10,7 +10,9 @@ using InterestingBlogWebApp.Application.Common.Interface.IRepositories;
 using InterestingBlogWebApp.Infrastructures.Repositories;
 using InterestingBlogWebApp.Domain.Auth;
 using InterestingBlogWebApp.Application.Common_Interfaces.IServices;
+using Microsoft.AspNetCore.SignalR;
 using BisleriumProject.Infrastructures.Services;
+using System.Configuration;
 
 public static class DependencyInjection
 {
@@ -19,7 +21,6 @@ public static class DependencyInjection
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("dev"),
             b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)), ServiceLifetime.Transient);
-
 
         services.AddIdentity<User, IdentityRole>(options =>
         {
@@ -30,16 +31,12 @@ public static class DependencyInjection
             options.Password.RequireUppercase = false;
             options.Password.RequireLowercase = false;
         })
-            .AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();
-
-        //services.AddScoped<IAppDbContext>(provider => provider.GetService<AppDbContext>());
-
-        services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
-
+        .AddEntityFrameworkStores<AppDbContext>()
+        .AddDefaultTokenProviders();
 
         services.AddDbContext<AppDbContext>();
 
+        services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
 
         services.AddTransient(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
         services.AddTransient<IUserRepository, UserRepository>();
@@ -49,9 +46,7 @@ public static class DependencyInjection
         services.AddTransient<IBlogRecordRepository, BlogRecordRepository>();
         services.AddTransient<ICommentReactionRepository, CommentReactionRepository>();
         services.AddTransient<ICommentRecordRepository, CommentRecordRepository>();
-
-        //services.AddTransient<IAuthenticationService, AuthenticationService>();
-
+        services.AddTransient<INotificationRepository, NotificationRepository>(); // Add this line
 
         services.AddTransient<IEmailService, EmailService>();
         services.AddTransient<IEmailServices, EmailServices>();
@@ -66,6 +61,12 @@ public static class DependencyInjection
         services.AddTransient<INotificationService, NotificationService>();
 
         services.AddSingleton<EmailConfiguration>();
+
+        services.AddSingleton<IUserIdProvider, UserIdProvider>();
+        services.AddSignalR().AddJsonProtocol(options =>
+        {
+            options.PayloadSerializerOptions.PropertyNamingPolicy = null;
+        });
 
         return services;
     }

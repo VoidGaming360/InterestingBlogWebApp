@@ -1,53 +1,62 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using InterestingBlogWebApp.Domain.Shared;
 using System.Text;
 
-
-const string myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
-
 var configuration = builder.Configuration;
 
+const string myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(configuration);
 
-
-// 3. Adding Authentication
+// Adding Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-
-// 4. Adding Jwt Bearer
-    .AddJwtBearer(options =>
+// Adding Jwt Bearer
+.AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters()
     {
-        options.SaveToken = true;
-        options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new TokenValidationParameters()
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = configuration["JWT:ValidAudience"],
+        ValidIssuer = configuration["JWT:ValidIssuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidAudience = configuration["JWT:ValidAudience"],
-            ValidIssuer = configuration["JWT:ValidIssuer"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
-        };
-    });
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notifications"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
 
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 
-
-
 builder.Services.AddEndpointsApiExplorer();
 
-// 5. Swagger authentication
+// Swagger authentication
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Bislerium Blogs API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Interesting Blog API", Version = "v1" });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -72,7 +81,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// 6. Add CORS policy
+// Add CORS policy
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: myAllowSpecificOrigins,
@@ -81,10 +90,8 @@ builder.Services.AddCors(options =>
             policy.AllowAnyOrigin()
                   .AllowAnyMethod()
                   .AllowAnyHeader();
-
         });
 });
-
 
 var app = builder.Build();
 
@@ -95,21 +102,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//7. Use CORS
-app.UseCors("_myAllowSpecificOrigins");
-app.UseHttpsRedirection();
+// Use CORS
+app.UseCors(myAllowSpecificOrigins);
 
 app.UseHttpsRedirection();
 app.UseRouting();
 
-
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();
-
-
 
 // Map controllers and SignalR hubs
 app.UseEndpoints(endpoints =>
@@ -119,6 +121,3 @@ app.UseEndpoints(endpoints =>
 });
 
 app.Run();
-
-
-

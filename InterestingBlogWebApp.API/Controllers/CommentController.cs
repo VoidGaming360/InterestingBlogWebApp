@@ -9,6 +9,10 @@ using InterestingBlogWebApp.Application.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using InterestingBlogWebApp.Domain.Shared;
+using InterestingBlogWebApp.Domain.Entities;
+using InterestingBlogWebApp.Domain.Payloads;
+using InterestingBlogWebApp.Domain.Enums;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -18,16 +22,18 @@ public class CommentController : ControllerBase
     private readonly IHubContext<NotificationHub> _notificationHub;
     private readonly IBlogService _blogService;
     private readonly INotificationService _notificationService;
+    private readonly IUserService _userService;
 
     public CommentController(ICommentService commentService,
                          IHubContext<NotificationHub> notificationHub,
                          IBlogService blogService,
-                         INotificationService notificationService)
+                         INotificationService notificationService, IUserService userService)
     {
         _commentService = commentService;
         _notificationHub = notificationHub;
         _blogService = blogService;
         _notificationService = notificationService;
+        _userService = userService;
     }
 
     [HttpGet("all")]
@@ -141,25 +147,35 @@ public class CommentController : ControllerBase
             }
 
             var authorId = blog.UserId;
-            var commentAuthorName = await _blogService.GetUserNameById(userId); // Assuming this method exists
+            var commentAuthorName = await _userService.GetUserNameById(userId);
 
             // Check if the commenter is not the author
-            if (userId != authorId )
+            if (userId != authorId)
             {
-                var notificationMessage = $"{commentAuthorName} added a comment on your blog.";
+                var payload = new CommentRelatedPayload
+                {
+                    Username = commentAuthorName,
+                    BlogTitle = blog.Title,
+                    CommentContent = createCommentDTO.Description
+                };
+
+                await _notificationHub.Clients.User(authorId).SendAsync(
+                    "ReceiveNotification",
+                    new Notification<CommentRelatedPayload>
+                    {
+                        NotificationType = NotificationType.COMMENT_CREATE,
+                        Payload = payload
+                    }
+                );
+
                 var notificationDto = new NotificationDTO
                 {
                     SenderId = userId,
                     ReceiverId = authorId,
-                    Message = notificationMessage,
+                    Message = $"{commentAuthorName} commented on your blog '{blog.Title}'.",
                     IsRead = false,
                     Timestamp = DateTime.UtcNow
                 };
-
-                // Send real-time notification
-                await _notificationHub.Clients.User(authorId).SendAsync("ReceiveNotification", notificationMessage);
-
-                // Save the notification in the database
                 await _notificationService.SaveNotificationAsync(notificationDto);
             }
 
@@ -167,7 +183,7 @@ public class CommentController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode((int)HttpStatusCode.InternalServerError, new { message = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
         }
     }
 

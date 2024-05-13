@@ -1,22 +1,18 @@
 ﻿using InterestingBlogWebApp.Application.Common.Interface.IRepositories;
 using InterestingBlogWebApp.Application.Common.Interface.IServices;
 using InterestingBlogWebApp.Application.DTOs;
-using InterestingBlogWebApp.Application.Helpers;
 using InterestingBlogWebApp.Domain.Entities;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using static System.Net.Mime.MediaTypeNames;
-
 namespace InterestingBlogWebApp.Infrastructure.Services
 {
     public class BlogService : IBlogService
     {
         private Cloudinary _cloudinary;
         private CloudinarySettings _cloudinarySettings;
-        private Account _account;
         private readonly IBlogRepository _blogRepository;
         private readonly IBlogRecordRepository _blogLogsheetRepository;
         private readonly UserManager<User> _userManager;
@@ -24,7 +20,7 @@ namespace InterestingBlogWebApp.Infrastructure.Services
         public BlogService(IBlogRepository blogsRepository, UserManager<User> userManager, IOptions<CloudinarySettings> cloudinarySettingsOptions, IBlogRecordRepository blogLogsheetRepository)
         {
             _cloudinarySettings = cloudinarySettingsOptions.Value;
-            _account = new Account(
+            var _account = new Account(
                 _cloudinarySettings.CloudName,
                 _cloudinarySettings.ApiKey,
                 _cloudinarySettings.ApiSecret);

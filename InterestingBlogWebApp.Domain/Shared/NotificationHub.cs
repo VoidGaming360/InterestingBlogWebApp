@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 
-public class NotificationHub : Hub
+namespace InterestingBlogWebApp.Domain.Shared
+
 {
-    public async Task SendNotification(string message)
-    {
-        await Clients.All.SendAsync("ReceiveNotification", message);
-    }
+    [Authorize]
+    public class NotificationHub : Hub { }
 }

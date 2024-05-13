@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
 using InterestingBlogWebApp.Application.Common.Interface.IServices;
 using InterestingBlogWebApp.Application.DTOs;
-using InterestingBlogWebApp.Application.Helpers;
-using InterestingBlogWebApp.Infrastructure.Services;
 using Microsoft.AspNetCore.SignalR;
 using InterestingBlogWebApp.Application.Common_Interfaces.IServices;
+using InterestingBlogWebApp.Domain.Shared;
+using InterestingBlogWebApp.Domain.Entities;
+using InterestingBlogWebApp.Domain.Payloads;
+using InterestingBlogWebApp.Domain.Enums;
 
 namespace InterestingBlogWebApp.Controllers
 {
@@ -21,14 +19,16 @@ namespace InterestingBlogWebApp.Controllers
         private readonly IHubContext<NotificationHub> _notificationHub;
         private readonly IBlogService _blogService;
         private readonly INotificationService _notificationService;
+        private readonly IUserService _userService;
 
         public BlogReactionController(IBlogReactionService blogVoteService, IHubContext<NotificationHub> notificationHub,
-            IBlogService blogService, INotificationService notificationService)
+            IBlogService blogService, INotificationService notificationService, IUserService userService)
         {
             _blogVoteService = blogVoteService;
             _notificationHub = notificationHub;
             _blogService = blogService;
             _notificationService = notificationService;
+            _userService = userService;
 
         }
 
@@ -82,18 +82,32 @@ namespace InterestingBlogWebApp.Controllers
             }
 
             var authorId = blog.UserId;
-            var upvoterName = await _blogService.GetUserNameById(userId);
+            var upvoterName = await _userService.GetUserNameById(userId);
 
             if (userId != authorId)
             {
-                var notificationMessage = $"{blog.Title} was upvoted by {upvoterName}.";
-                await _notificationHub.Clients.User(authorId).SendAsync("ReceiveNotification", notificationMessage);
-                // Save the notification
+                var payload = new BlogRelatedPayload
+                {
+                    Username = upvoterName,
+                    BlogTitle = blog.Title
+                };
+
+                await _notificationHub.Clients.User(authorId).SendAsync(
+                    "ReceiveNotification",
+                    new Notification<BlogRelatedPayload>
+                    {
+                        NotificationType = NotificationType.BLOG_LIKE,
+                        Payload = payload
+                    }
+                );
+
                 var notificationDto = new NotificationDTO
                 {
                     SenderId = userId,
                     ReceiverId = authorId,
-                    Message = notificationMessage
+                    Message = $"{upvoterName} upvoted your blog '{blog.Title}'.",
+                    IsRead = false,
+                    Timestamp = DateTime.UtcNow
                 };
                 await _notificationService.SaveNotificationAsync(notificationDto);
             }
