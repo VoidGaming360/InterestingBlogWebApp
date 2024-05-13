@@ -53,7 +53,7 @@ namespace InterestingBlogWebApp.Controllers
         }
 
         [HttpGet("sorted")]
-        public async Task<IActionResult> GetAllSorted(string sortBy = "random", int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> GetAllSorted(string sortBy = "random", int pageNumber = 1, int pageSize = 2)
         {
             var (blogs, totalPages, totalCount) = await _blogService.GetAllSorted(sortBy, pageNumber, pageSize);
             var userId = User.FindFirst("userId")?.Value;
@@ -149,7 +149,7 @@ namespace InterestingBlogWebApp.Controllers
                 blogDTO.UserId = userId;
                 if (blogDTO.Image != null && blogDTO.Image.Length > MaxFileSizeInBytes)
                 {
-                    return BadRequest(new { message = "Image size exceeds the 3 MB limit." });
+                    return BadRequest(new { message = "Image too large to upload." });
                 }
 
                 var response = await _blogService.AddBlog(blogDTO, errors);

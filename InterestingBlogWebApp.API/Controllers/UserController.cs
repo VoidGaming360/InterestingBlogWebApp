@@ -87,7 +87,7 @@ public class UserController : ControllerBase
     }
 
     [Authorize]
-    [HttpPost("update")]
+    [HttpPut("update-password")]
     public async Task<IActionResult> UpdateUser([FromBody] UpdateDTO updateUserDTO)
     {
         var errors = new List<string>();
@@ -118,7 +118,7 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpPost("update-user-details")]
+    [HttpPut("update-user-details")]
     [Authorize] // Ensures the user is logged in
     public async Task<IActionResult> UpdateUserDetails([FromBody] UpdateUserDTO updateDTO)
     {
@@ -168,9 +168,9 @@ public class UserController : ControllerBase
         try
         {
             // Construct the reset URL
-            var frontEndUrl = "https://localhost:3000/reset-password";
+            var frontEndUrl = "http://localhost:3000/reset-password";
             var encodedToken = WebUtility.UrlEncode(resetToken);
-            var resetPasswordUrl = $"{frontEndUrl}?token={encodedToken}&email={Uri.EscapeDataString(user.Email)}";
+            var resetPasswordUrl = $"{frontEndUrl}/{encodedToken}";
 
             string subject = "Reset Your Password";
             string htmlContent = $"<p>Please reset your password by clicking <a href='{resetPasswordUrl}'>here</a>.</p>";

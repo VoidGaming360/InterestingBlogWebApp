@@ -1,4 +1,5 @@
 ﻿using InterestingBlogWebApp.Application.Common_Interfaces.IServices;
+using InterestingBlogWebApp.Application.DTOs;
 using InterestingBlogWebApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -24,7 +25,7 @@ namespace InterestingBlogWebApp.API.Controllers
             return Ok(new { Message = "Notification sent successfully!" });
         }
 
-        [HttpGet("count-unseen")]
+        [HttpGet("api/count-unseen")]
         public async Task<IActionResult> CountUnseenNotifications()
         {
             var userId = User.FindFirst("userId")?.Value;
@@ -38,6 +39,15 @@ namespace InterestingBlogWebApp.API.Controllers
             var userId = User.FindFirst("userId")?.Value;
             await _notificationService.MarkNotificationsAsRead(userId);
             return Ok(new { Message = "All notifications marked as seen." });
+        }
+
+        [HttpGet("api/notifications")]
+        public async Task<ActionResult<IEnumerable<NotificationDTO>>> GetNotificationsForUser()
+        {
+            var userId = User.FindFirst("userId")?.Value;
+
+            var notifications = await _notificationService.GetNotificationsForUserAsync(userId);
+            return Ok(notifications);
         }
     }
 }
